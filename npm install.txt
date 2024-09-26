@@ -1,0 +1,5 @@
+npm install
+npm start dev
+cd backend
+npm init -y
+node server.js

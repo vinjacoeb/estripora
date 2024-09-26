@@ -27,7 +27,7 @@ function HeroContent() {
       </p>
       <div className="dropdown">
         <button className="aximo-call-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          Pilih Kategori <i className="icon-search"></i>
+          Pilih Kategori <i className="icon-arrow-right"></i> 
         </button>
         <ul className="dropdown-menu">
           {categories.length > 0 ? (

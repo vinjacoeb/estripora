@@ -1,12 +1,11 @@
 const express = require('express');
 const mysql = require('mysql');
-const cors = require('cors'); // Tambahkan ini
+const cors = require('cors');
 
 const app = express();
 const port = 3001;
 
-// Enable CORS
-app.use(cors()); // Tambahkan ini
+app.use(cors());
 
 const connection = mysql.createConnection({
   host: 'localhost',

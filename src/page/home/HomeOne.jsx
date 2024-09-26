@@ -76,12 +76,9 @@ function HomeOne() {
 		<>
 			<Hero />
 			<Services services={servicesData} />
-			<About />
+			
 			<Projects />
 			<WhyChooseUs />
-			<Testimonial />
-			<AutoSlider />
-			<Teams teams={teamsData} />
 		</>
 	);
 }
