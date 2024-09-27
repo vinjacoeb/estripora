@@ -7,6 +7,7 @@ import Teams from "../../components/home-one/teams";
 import Testimonial from "../../components/home-one/testimonial";
 import WhyChooseUs from "../../components/home-one/why-choose-us";
 
+
 // Teams images
 import Team1Img from "../../assets/images/team/team1.png";
 import Team2Img from "../../assets/images/team/team2.png";
@@ -76,7 +77,6 @@ function HomeOne() {
 		<>
 			<Hero />
 			<Services services={servicesData} />
-			
 			<Projects />
 			<WhyChooseUs />
 		</>

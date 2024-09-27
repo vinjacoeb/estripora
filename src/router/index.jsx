@@ -35,6 +35,7 @@ import SingleTeam from "../page/team/SingleTeam.jsx";
 import CommingSoon from "../page/utility/CommingSoon.jsx";
 import Faq from "../page/utility/Faq.jsx";
 import TestimonialPage from "../page/utility/Testimonial.jsx";
+import Sarana from "../page/Sarana.jsx";
 
 export const router = createBrowserRouter([
 	{
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
 					{
 						path: "/",
 						element: <HomeOne />,
+					},
+					{
+						path: "/sarana",
+						element: <Sarana />,
 					},
 					{
 						path: "/about-us",
@@ -106,7 +111,7 @@ export const router = createBrowserRouter([
 					{
 						path: "/portfolio-two",
 						element: <PortfolioTwoColumn />,
-					},
+					},					
 					{
 						path: "/single-portfolio",
 						element: <SinglePortfolio />,
