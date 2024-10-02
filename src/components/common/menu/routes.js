@@ -8,12 +8,12 @@ export const routes = [
 		href: "sarana",
 	},
 	{
-		title: "Keranjang",
-		href: "keranjang",
+		title: "Cetak Bukti Pembayaran",
+		href: "cetak",
 	},
 	{
-		title: "Cetak Bukti Pembayaran",
-		href: "cetak-bukti",
+		title: "History",
+		href: "history",
 	},
 	{
 		title: "Kontak Kami",

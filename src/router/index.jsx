@@ -36,6 +36,7 @@ import CommingSoon from "../page/utility/CommingSoon.jsx";
 import Faq from "../page/utility/Faq.jsx";
 import TestimonialPage from "../page/utility/Testimonial.jsx";
 import Sarana from "../page/Sarana.jsx";
+import Cetak from "../page/Cetak.jsx";
 
 export const router = createBrowserRouter([
 	{
@@ -53,6 +54,10 @@ export const router = createBrowserRouter([
 					{
 						path: "/sarana",
 						element: <Sarana />,
+					},
+					{
+						path: "/cetak",
+						element: <Cetak />,
 					},
 					{
 						path: "/about-us",
