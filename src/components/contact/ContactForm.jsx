@@ -1,33 +1,52 @@
+import React from "react";
 import { useForm } from "react-hook-form";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import ContactThumb from "../../assets/images/contact/contact-thumb.png";
 import Star2Img from "../../assets/images/v1/star2.png";
 import Field from "../common/Field";
+import emailjs from "emailjs-com"; // Import EmailJS
+
 function ContactForm() {
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
 	} = useForm();
+
+	// Submit form function with EmailJS integration
 	const submitForm = (formData) => {
-		console.log("Submite Form Data = ", formData);
+		// Mengirim email menggunakan EmailJS
+		emailjs
+			.send(
+				"service_xlzed88", // Ganti dengan service ID dari EmailJS
+				"template_rdv12z4", // Ganti dengan template ID dari EmailJS
+				{
+					name: formData.name,
+					email: formData.email,
+					phone: formData.phone,
+					message: formData.message,
+				},
+				"H44wfmh5-pXPg2RKA" // Ganti dengan user ID dari EmailJS
+			)
+			.then(
+				(result) => {
+					console.log("Email berhasil dikirim: ", result.text);
+					alert("Pesan berhasil dikirim!");
+				},
+				(error) => {
+					console.log("Gagal mengirim email: ", error.text);
+					alert("Terjadi kesalahan. Coba lagi.");
+				}
+			);
 	};
+
 	return (
 		<div className="section aximo-section-padding">
 			<div className="container">
 				<div className="row">
 					<div className="col-lg-8">
-						<div className="aximo-section-title">
-							<h2>
-								<span className="aximo-title-animation">
-									Contact us for a
-									<span className="aximo-title-icon">
-										<img src={Star2Img} alt="Star" />
-									</span>
-								</span>
-								personal experience
-							</h2>
-						</div>
+	
+
 					</div>
 				</div>
 
@@ -36,7 +55,7 @@ function ContactForm() {
 						<div className="aximo-contact-thumb ">
 							<LazyLoadImage
 								src={ContactThumb}
-								width={397}
+								width={475}
 								height={635}
 								alt="Contact Thumb"
 								effect="blur"
@@ -78,7 +97,11 @@ function ContactForm() {
 								</div>
 								<div className="aximo-main-field">
 									<label>Write your message here...</label>
-									<textarea name="textarea"></textarea>
+									<textarea
+										{...register("message", { required: "Message is required." })}
+										name="message"
+										id="message"
+									></textarea>
 								</div>
 								<button id="aximo-main-btn" type="submit">
 									Send Message

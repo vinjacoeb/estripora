@@ -1,5 +1,5 @@
 import Shape2Img from "../../../assets/images/v4/shape2.png";
-import Thumb1Img from "../../../assets/images/v4/thumb1.png";
+import Thumb1Img from "../../../assets/images/v4/new2.png";
 
 function WhyChooseUs() {
 	return (
@@ -16,20 +16,13 @@ function WhyChooseUs() {
 					</div>
 					<div className="col-lg-7">
 						<div className="aximo-default-content arimo-font m-left-gap">
-							<span className="aximo-subtitle">Why choose us</span>
-							<h2>We help companies achieve their goals</h2>
-							<p>
-								In today's complex and rapidly changing business environment, we help businesses adapt,
-								grow & succeed. Our expertise, objectivity, and ability to provide customized solutions.
-							</p>
-							<p>
-								<strong>Industry Expertise:</strong> Our team of seasoned consultants brings wealth of
-								knowledge and experience across various industries.
-							</p>
-							<p>
-								<strong>Results-Driven Approach:</strong> Our proven methodologies and data-driven
-								strategies ensure that your business reaches.
-							</p>
+							<span className="aximo-subtitle">Kenapa Estripora?</span>
+							<h2 style={{ fontSize: '50px' }}>
+      							Jenis-jenis Layanan
+    						</h2>
+							<p style={{ textAlign: 'justify' }}>
+      							Beberapa layanan pada situs ini diantaranya, Sewa Lahan, Gedung Pertemuan Manunggal Jati, Ruangan/Toko di Lapangan Citarum, Tempat Penginapan Gelanggang Pemuda, Penggunaan Gedung Tri Lomba Juang, Lapangan Sepakbola Sidodadi, Lapangan Sepakbola Citarum, Lapangan Tenis Tambora, Lapangan GOR Tri Lomba Juang, GOR Gelanggang Pemuda Manunggal Jati, Penggunaan Sirkuit Mijen, Gedung Serba Guna, Penginapan, Gelanggang Renang, Padepokan Pencak Silat Gunung Talang, Sport Center Mangkang Wetan, Fitnes GOR Tri Lomba Juang, Penginapan Range, dan masih banyak layanan lagi yang akan di sediakan pada situs ini.
+    						</p>
 						</div>
 					</div>
 				</div>

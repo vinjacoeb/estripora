@@ -9,12 +9,12 @@ function Accordion() {
 						data-bs-toggle="collapse"
 						data-bs-target="#collapseOne"
 					>
-						01/ Project idea
+						01/ Pesan
 					</button>
 				</h3>
 				<div id="collapseOne" className="accordion-collapse collapse show" data-bs-parent="#aximo-accordion">
 					<div className="accordion-body">
-						The process starts with a detailed discussion with the client to understand their idea & goals.
+						Pilih sarana yang ingin disewa.
 					</div>
 				</div>
 			</div>
@@ -26,12 +26,12 @@ function Accordion() {
 						data-bs-toggle="collapse"
 						data-bs-target="#collapseTwo"
 					>
-						02/ Brainstorming
+						02/ Verifikasi
 					</button>
 				</h3>
 				<div id="collapseTwo" className="accordion-collapse collapse" data-bs-parent="#aximo-accordion">
 					<div className="accordion-body">
-						rainstorming is a group creativity technique in which members attempt to find a conclusion.
+						Pesanan akan diverifikasi oleh OPD yang terkait.
 					</div>
 				</div>
 			</div>
@@ -43,12 +43,29 @@ function Accordion() {
 						data-bs-toggle="collapse"
 						data-bs-target="#collapseThree"
 					>
-						03/ Launch
+						03/ Cetak ID
 					</button>
 				</h3>
 				<div id="collapseThree" className="accordion-collapse collapse" data-bs-parent="#aximo-accordion">
 					<div className="accordion-body">
-						The completed design assets or final product are delivered with necessary documentation.
+						Cetak ID billing pemesanan.
+					</div>
+				</div>
+			</div>
+			<div className="accordion-item">
+				<h3 className="accordion-header">
+					<button
+						className="accordion-button"
+						type="button"
+						data-bs-toggle="collapse"
+						data-bs-target="#collapseFour"
+					>
+						04/ Pembayaran
+					</button>
+				</h3>
+				<div id="collapseFour" className="accordion-collapse collapse" data-bs-parent="#aximo-accordion">
+					<div className="accordion-body">
+					Pembayaran dapat melalui Bank Persepsi, ATM, e-Banking, m-Banking, e-Wallet, dan gerai pembayaran.
 					</div>
 				</div>
 			</div>

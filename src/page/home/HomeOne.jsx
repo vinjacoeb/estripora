@@ -76,7 +76,6 @@ function HomeOne() {
 		<>
 			<Hero />
 			<Services services={servicesData} />
-			
 			<Projects />
 			<WhyChooseUs />
 		</>

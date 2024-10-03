@@ -4,20 +4,17 @@ function Content() {
 		<div className="aximo-default-content">
 			<h2>
 				<span className="aximo-title-animation">
-					Our high-quality
+				Dilaksanakan 
 					<span className="aximo-title-icon">
 						<img src={Star2Img} alt="Star2Img" />
 					</span>
 				</span>{" "}
-				working processes
+				Kapanpun dan Dimanapun
 			</h2>
-			<p>
-				We focus at every stage on effective communication and collaboration between the client and ensuring
-				that the final design meets the client s objectives and expectations.
-			</p>
-			<p>
-				It is important to note that these are simplified steps, and the actual work process may vary depending
-				on the complexity of the project.
+			<p style={{ textAlign: 'justify' }}>
+			Dengan sistem yang online maka kewajiban Retribusi dapat dilaksanakan dimanapun dan kapanpun selama ada akses internet, 
+			dan untuk pembayaran Wajib Retribusi dapat membayar 
+			melalui Bank Persepsi, ATM, e-Banking, m-Banking, e-Wallet, dan gerai pembayaran.
 			</p>
 		</div>
 	);

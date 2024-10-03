@@ -22,12 +22,12 @@ function HeroContent() {
       <h1>
         <span className="aximo-title-animation">Estripora</span> Kota Semarang
       </h1>
-      <p>
+      <p style={{ textAlign: 'justify' }}>
         {`ESTRIPORA adalah layanan Pemerintah Kota Semarang untuk pemesanan, pendataan, penetapan, dan pembayaran retribusi pada obyek tertentu. Layanan ini bertujuan memudahkan akses masyarakat, meningkatkan akuntabilitas, dan menciptakan pelayanan publik yang unggul dalam sektor pendapatan daerah.`}
       </p>
       <div className="dropdown">
         <button className="aximo-call-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          Pilih Kategori <i className="icon-arrow-right"></i> 
+          Pilih Sarana <i className="icon-arrow-right"></i> 
         </button>
         <ul className="dropdown-menu">
           {categories.length > 0 ? (
