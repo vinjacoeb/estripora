@@ -1,5 +1,5 @@
 npm install
-npm start dev
+npm run dev
 cd backend
 npm init -y
-node server.js
+node server.jsnpm

@@ -4,7 +4,7 @@ import BreadCrumb from "../../components/common/Breadcrumb";
 function SingleBlogPage() {
 	return (
 		<>
-			<BreadCrumb title="Blog Details" />
+			<BreadCrumb title="Sarana Detail" />
 			<SingleBlog />
 		</>
 	);

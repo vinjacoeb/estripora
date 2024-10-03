@@ -14,10 +14,17 @@ const connection = mysql.createConnection({
   database: 'disporas_web',
 });
 
-connection.connect();
+connection.connect((err) => {
+  if (err) {
+    console.error('Database connection failed:', err);
+    return;
+  }
+  console.log('Connected to the database.');
+});
 
+// Update the endpoint to fetch multiple fields
 app.get('/backend', (req, res) => {
-  const query = 'SELECT nama FROM webdis_data_estripora';
+  const query = 'SELECT nama, kecamatan, sarana, harga, gambar FROM webdis_data_estripora'; // Select the required fields
   connection.query(query, (err, results) => {
     if (err) {
       return res.status(500).send(err);
