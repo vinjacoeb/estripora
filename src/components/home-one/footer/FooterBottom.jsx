@@ -20,6 +20,7 @@ function FooterBottom() {
       </div>
       <div className="col-lg-6">
         <div className="aximo-copywright one">
+          <p>Copyright © 2024 Dinas Kepemudaan dan Olahraga Kota Semarang</p>
         </div>
       </div>
     </>

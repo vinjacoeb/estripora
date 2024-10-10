@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { jsPDF } from "jspdf";
+import 'jspdf-autotable';
+import LogoWhiteImg from "../../assets/images/logo/Lambang_Kota_Semarang.png"; // Impor logo dari folder
 
 function BillingTable() {
-  const [showModal, setShowModal] = useState(false);
   const [selectedBilling, setSelectedBilling] = useState(null);
 
   const billingData = [
@@ -9,14 +11,51 @@ function BillingTable() {
     { no: 2, idBilling: 'BL12346', tglMulai: '2024-09-02', tglSelesai: '2024-09-06', durasi: '4 hari', totalBiaya: 'Rp 4.500.000' },
   ];
 
-  const openModal = (billing) => {
-    setSelectedBilling(billing);
-    setShowModal(true);
-  };
+  const generatePDF = (billing) => {
+    const doc = new jsPDF();
 
-  const closeModal = () => {
-    setShowModal(false);
-    setSelectedBilling(null);
+    // Tambahkan Logo di pojok kiri atas
+    const img = new Image();
+    img.src = LogoWhiteImg; // Load gambar dari path yang diimpor
+
+    // Setelah gambar dimuat, tambahkan ke PDF
+    img.onload = function () {
+      // Logo dan nama organisasi di sebelahnya
+      doc.addImage(img, 'PNG', 10, 10, 20, 20); // Set posisi dan ukuran gambar (kiri, atas, lebar, tinggi)
+      doc.setFontSize(14);
+      doc.text('Estripora Kota Semarang', 35, 20); // Nama organisasi di sebelah logo
+
+      // Tambah Judul di tengah halaman
+      doc.setFontSize(25);
+      doc.text('Hasil Cetak Billing', doc.internal.pageSize.getWidth() / 2, 40, { align: 'center' }); // Judul di tengah
+
+      // Tambahkan Tanggal Pemesanan di kanan atas di atas tabel
+      doc.setFontSize(12);
+      doc.text(` ${billing.tglMulai} - ${billing.tglSelesai}`, doc.internal.pageSize.getWidth() - 70, 70); // Tanggal di kanan atas
+
+      // Tambah Detail Billing
+      doc.setFontSize(12);
+      doc.text(`ID Billing: ${billing.idBilling}`, 14, 70);
+
+      // Tambah Tabel Data Billing Menggunakan autoTable
+      doc.autoTable({
+        startY: 80,
+        head: [['No', 'ID Billing', 'Tanggal Mulai', 'Tanggal Selesai', 'Durasi Sewa', 'Total Biaya']],
+        body: [
+          [
+            billing.no,
+            billing.idBilling,
+            billing.tglMulai,
+            billing.tglSelesai,
+            billing.durasi,
+            billing.totalBiaya
+          ]
+        ],
+      });
+
+      // Simpan PDF
+      doc.save(`invoice_${billing.idBilling}.pdf`);
+    };
   };
 
   return (
@@ -46,38 +85,28 @@ function BillingTable() {
               <td style={{ padding: '10px', border: '1px solid #ddd' }}>{billing.durasi}</td>
               <td style={{ padding: '10px', border: '1px solid #ddd' }}>{billing.totalBiaya}</td>
               <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                <button style={{ marginRight: '8px' }} onClick={() => openModal(billing)}>Detail</button>
-                <button>Cetak</button>
+                <button 
+                  onClick={() => generatePDF(billing)} 
+                  style={{ 
+                    backgroundColor: '#4CAF50', 
+                    color: 'white', 
+                    padding: '10px 20px', 
+                    textAlign: 'center', 
+                    textDecoration: 'none', 
+                    display: 'inline-block', 
+                    fontSize: '16px', 
+                    borderRadius: '8px', 
+                    border: 'none', 
+                    cursor: 'pointer' 
+                  }}
+                >
+                  Cetak
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
-      {/* Modal */}
-      {showModal && (
-        <div style={{
-          position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center',
-          paddingTop: '20px', paddingBottom: '20px'
-        }}>
-          <div style={{
-            backgroundColor: 'white', padding: '20px', borderRadius: '8px', width: '400px'
-          }}>
-            <h3>Detail Billing</h3>1
-            {selectedBilling && (
-              <>
-                <p>ID Billing: {selectedBilling.idBilling}</p>
-                <p>Tanggal Mulai: {selectedBilling.tglMulai}</p>
-                <p>Tanggal Selesai: {selectedBilling.tglSelesai}</p>
-                <p>Durasi Sewa: {selectedBilling.durasi}</p>
-                <p>Total Biaya: {selectedBilling.totalBiaya}</p>
-              </>
-            )}
-            <button onClick={closeModal} style={{ marginTop: '20px' }}>Close</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
