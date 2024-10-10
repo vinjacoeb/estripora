@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import Star2Img from "../../assets/images/v1/star2.png";
-
 // Custom marker icon to resemble the Google Maps pin
 const customMarker = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
@@ -11,10 +10,8 @@ const customMarker = new L.Icon({
   iconAnchor: [15, 30],
   popupAnchor: [0, -30],
 });
-
 function OpenStreetMap() {
   const position = [-6.99067950780461, 110.39651020968479]; // Coordinates for DISPORA Semarang
-
   // Scroll to center on the map load
   useEffect(() => {
     const mapElement = document.getElementById("map");
@@ -22,12 +19,10 @@ function OpenStreetMap() {
       mapElement.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, []);
-
   return (
     <div style={{ fontFamily: "Arial, sans-serif" }}>
       {/* Header Section */}
       
-
       {/* Map Section */}
       <div style={{ padding: "20px 0" }}>
         <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
@@ -42,7 +37,6 @@ function OpenStreetMap() {
               </span>
             </h2>
           </div>
-
           {/* Map Container */}
           <div
             style={{
