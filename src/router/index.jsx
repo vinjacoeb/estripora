@@ -8,6 +8,7 @@ import LayoutSix from "../components/layout/LayoutSix.jsx";
 import LayoutThree from "../components/layout/LayoutThree.jsx";
 import LayoutTwo from "../components/layout/LayoutTwo.jsx";
 import Layout from "../components/layout/index.jsx";
+import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import ErrorPage from "../error-page";
 import AboutUs from "../page/AboutUs";
 import ContactUs from "../page/ContactUs";
@@ -37,6 +38,7 @@ import Faq from "../page/utility/Faq.jsx";
 import TestimonialPage from "../page/utility/Testimonial.jsx";
 import Sarana from "../page/Sarana.jsx";
 import Cetak from "../page/Cetak.jsx";
+import Dashboard from "../page/admin/Dashboard.jsx";
 
 export const router = createBrowserRouter([
 	{
@@ -208,7 +210,23 @@ export const router = createBrowserRouter([
 						element: <SignIn />,
 					},
 				],
+				path: "/",
+				element: <DashboardLayout />,
+				children: [
+					{
+						path: "/dashboard",
+						element: <Dashboard />, // Dashboard component
+					},
+					{
+						path: "*",
+						element: <ErrorPage />, // Handle errors
+					},
+				],
 			},
 		],
 	},
 ]);
+
+
+
+
