@@ -39,6 +39,7 @@ import TestimonialPage from "../page/utility/Testimonial.jsx";
 import Sarana from "../page/Sarana.jsx";
 import Cetak from "../page/Cetak.jsx";
 import Dashboard from "../page/admin/Dashboard.jsx";
+import AdminSarana from "../page/admin/Sarana.jsx";
 
 export const router = createBrowserRouter([
 	{
@@ -216,6 +217,10 @@ export const router = createBrowserRouter([
 					{
 						path: "/dashboard",
 						element: <Dashboard />, // Dashboard component
+					},
+					{
+						path: "/admin-sarana",
+						element: <AdminSarana />, // Dashboard component
 					},
 					{
 						path: "*",

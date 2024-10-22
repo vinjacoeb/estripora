@@ -1,22 +1,22 @@
-// src/components/layout/DashboardLayout.jsx
-import React from 'react';
-import Header from '../admin/Header'; // Ensure this path is correct
-import Sidebar from '../admin/Sidebar'; // Ensure this path is correct
-import Footer from '../admin/Footer'; // Ensure this path is correct
-import Dashboard from '../../page/admin/Dashboard';
+import { Outlet } from "react-router-dom";
+import useScrollTop from "../../hooks/useScrollTop";
+import Header from '../admin/Header'; // Pastikan path ini sesuai
+import Sidebar from '../admin/Sidebar'; // Pastikan path ini sesuai
+import Footer from '../admin/Footer'; // Pastikan path ini sesuai
 
-const DashboardLayout = ({ children }) => {
+function DashboardLayout() {
+    useScrollTop();
+
     return (
-        <div id="layout-wrapper">
+        <>
             <Header />
             <Sidebar />
-            <div className="main-content">
-                {children}
-            </div>
-            <Dashboard />
+            <main>
+                <Outlet /> {/* Ini akan menampilkan konten anak */}
+            </main>
             <Footer />
-        </div>
+        </>
     );
-};
+}
 
 export default DashboardLayout;

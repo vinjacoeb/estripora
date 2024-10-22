@@ -17,6 +17,8 @@
 		"google-map-react": "^2.2.1",
 		"jquery": "^3.7.1",
 		"jquery-knob": "^1.2.11",
+		"jspdf": "^2.5.2",
+		"jspdf-autotable": "^3.8.3",
 		"leaflet": "^1.9.4",
 		"morris.js": "^0.5.0",
 		"nodemailer": "^6.9.15",
