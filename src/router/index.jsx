@@ -40,6 +40,8 @@ import Sarana from "../page/Sarana.jsx";
 import Cetak from "../page/Cetak.jsx";
 import Dashboard from "../page/admin/Dashboard.jsx";
 import AdminSarana from "../page/admin/Sarana.jsx";
+import AdminSaranaEdit from "../page/admin/SaranaEdit.jsx";
+import AdminSaranaTambah from "../page/admin/SaranaTambah.jsx";
 
 export const router = createBrowserRouter([
 	{
@@ -221,6 +223,14 @@ export const router = createBrowserRouter([
 					{
 						path: "/admin-sarana",
 						element: <AdminSarana />, // Dashboard component
+					},
+					{
+						path: "/admin-sarana/add",
+						element: <AdminSaranaTambah />, // Dashboard component
+					},
+					{
+						path: "/admin-sarana/edit/:id",
+						element: <AdminSaranaEdit />, // Dashboard component
 					},
 					{
 						path: "*",
