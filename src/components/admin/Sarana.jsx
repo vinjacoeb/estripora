@@ -1,25 +1,88 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const Sarana = () => {
   const [saranaList, setSaranaList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
   const itemsPerPage = 5;
 
   useEffect(() => {
+    fetchSaranaList();
+  }, []);
+
+  const fetchSaranaList = () => {
     axios.get('http://localhost:3001/backend')
       .then((response) => {
         setSaranaList(response.data);
       })
       .catch((error) => console.log(error));
-  }, []);
+  };
 
-  // Function to truncate image name
+  // Function to handle delete confirmation
+  const handleDeleteClick = (id) => {
+    Swal.fire({
+      title: 'Apakah anda yakin?',
+      text: "Data yang dihapus tidak dapat dikembalikan!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDelete(id);
+      }
+    });
+  };
+
+  // Function to execute delete
+  const handleDelete = (id) => {
+    axios.delete(`http://localhost:3001/backend/${id}`)
+      .then(() => {
+        Swal.fire({
+          title: 'Terhapus!',
+          text: 'Data berhasil dihapus.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        fetchSaranaList(); // Refresh the list after deletion
+      })
+      .catch((error) => {
+        console.error('Error deleting data:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Gagal menghapus data.',
+          icon: 'error',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      });
+  };
+
+  // Updated function to show last 5 characters and file extension
   const truncateImageName = (imageName) => {
     if (!imageName) return '-';
-    if (imageName.length <= 5) return imageName;
-    return imageName.substring(0, 5) + '...';
+    
+    // Find the last dot to separate extension
+    const lastDotIndex = imageName.lastIndexOf('.');
+    if (lastDotIndex === -1) return imageName; // No extension found
+    
+    const extension = imageName.substring(lastDotIndex); // Get the extension with dot
+    const nameWithoutExtension = imageName.substring(0, lastDotIndex);
+    
+    // Get last 5 characters of the name (or whole name if less than 5)
+    const last5Chars = nameWithoutExtension.slice(-5);
+    
+    // If name is longer than 5 characters, add ellipsis
+    const prefix = nameWithoutExtension.length > 5 ? '...' : '';
+    
+    return prefix + last5Chars + extension;
   };
 
   // Calculate pagination
@@ -86,9 +149,7 @@ const Sarana = () => {
                             <td className="align-middle">{sarana.nama}</td>
                             <td className="align-middle">{sarana.sarana}</td>
                             <td className="text-center align-middle">
-                              <span className="text-muted">
-                                {truncateImageName(sarana.gambar)}
-                              </span>
+                              {truncateImageName(sarana.gambar)}
                             </td>
                             <td className="text-right align-middle">
                               Rp {sarana.harga || '0'}
@@ -111,8 +172,8 @@ const Sarana = () => {
                                 >
                                   <i className="fas fa-edit fa-sm"></i>
                                 </Link>
-                                <Link 
-                                  to={`/delete/${sarana.id}`}
+                                <button 
+                                  onClick={() => handleDeleteClick(sarana.id)}
                                   className="btn btn-danger p-1"
                                   style={{ 
                                     width: '28px', 
@@ -125,7 +186,7 @@ const Sarana = () => {
                                   title="Delete"
                                 >
                                   <i className="fas fa-trash fa-sm"></i>
-                                </Link>
+                                </button>
                               </div>
                             </td>
                           </tr>
@@ -176,7 +237,6 @@ const Sarana = () => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>

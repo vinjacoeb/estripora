@@ -57,7 +57,8 @@ const SaranaTambah = () => {
         timer: 2000,
         showConfirmButton: false
       });
-      navigate('/');
+      // Ubah ke halaman /admin-sarana setelah berhasil menambahkan data
+      navigate('/admin-sarana');
     } catch (error) {
       console.error('Error adding data:', error);
       Swal.fire({
@@ -167,7 +168,7 @@ const SaranaTambah = () => {
                     </div>
 
                     <div className="d-flex justify-content-end gap-2">
-                      <Link to="/" className="btn btn-secondary">
+                      <Link to="/admin-sarana" className="btn btn-secondary">
                         Kembali
                       </Link>
                       <button type="submit" className="btn btn-primary">

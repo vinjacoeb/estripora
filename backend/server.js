@@ -28,7 +28,12 @@ db.connect((err) => {
   console.log('Connected to MySQL database');
 });
 
-// Set up multer for file uploads
+// Function to sanitize file names
+const cleanFileName = (fileName) => {
+  return fileName.toLowerCase().replace(/[^a-z0-9.]/g, '_');
+};
+
+// Multer storage configuration with unique filename
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, 'uploads');
@@ -38,7 +43,19 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+    const ext = path.extname(file.originalname);
+    const nameWithoutExt = path.basename(file.originalname, ext);
+    const cleanName = cleanFileName(nameWithoutExt);
+    
+    let finalName = `${cleanName}${ext}`;
+    let counter = 1;
+    
+    while (fs.existsSync(path.join(__dirname, 'uploads', finalName))) {
+      finalName = `${cleanName}_${counter}${ext}`;
+      counter++;
+    }
+    
+    cb(null, finalName);
   }
 });
 
@@ -46,7 +63,7 @@ const upload = multer({ storage });
 
 // Routes
 
-// Get all data without lokasi, longitude, and latitude
+// Get all data
 app.get('/backend', (req, res) => {
   const query = "SELECT id, kecamatan, nama, sarana, gambar, harga FROM webdis_data_estripora";
   db.query(query, (err, result) => {
@@ -59,7 +76,7 @@ app.get('/backend', (req, res) => {
   });
 });
 
-// Get a single data entry by ID without lokasi, longitude, and latitude
+// Get single data
 app.get('/backend/:id', (req, res) => {
   const { id } = req.params;
   const query = "SELECT id, kecamatan, nama, sarana, gambar, harga FROM webdis_data_estripora WHERE id = ?";
@@ -68,12 +85,15 @@ app.get('/backend/:id', (req, res) => {
       console.error('Error fetching data:', err);
       res.status(500).send(err);
     } else {
+      if (result[0] && result[0].gambar) {
+        result[0].gambar = `http://localhost:3001/images/${result[0].gambar}`;
+      }
       res.send(result[0]);
     }
   });
 });
 
-// Add a new data entry without lokasi, longitude, and latitude
+// Add new data
 app.post('/backend', upload.single('gambar'), (req, res) => {
   const { kecamatan, nama, sarana, harga } = req.body;
   const gambar = req.file ? req.file.filename : null;
@@ -88,14 +108,29 @@ app.post('/backend', upload.single('gambar'), (req, res) => {
   });
 });
 
-// Update a data entry without lokasi, longitude, and latitude
+// Update data
 app.put('/backend/:id', upload.single('gambar'), (req, res) => {
   const { id } = req.params;
   const { kecamatan, nama, sarana, harga } = req.body;
-  const gambar = req.file ? req.file.filename : req.body.gambar;
+  const newGambar = req.file ? req.file.filename : req.body.gambar;
+
+  // Delete old image if uploading a new one
+  if (req.file) {
+    const selectQuery = "SELECT gambar FROM webdis_data_estripora WHERE id = ?";
+    db.query(selectQuery, [id], (err, result) => {
+      if (err) {
+        console.error('Error fetching old image:', err);
+      } else if (result[0] && result[0].gambar) {
+        const oldFilePath = path.join(__dirname, 'uploads', result[0].gambar);
+        fs.unlink(oldFilePath, (err) => {
+          if (err) console.error('Error deleting old file:', err);
+        });
+      }
+    });
+  }
 
   const query = "UPDATE webdis_data_estripora SET kecamatan = ?, nama = ?, sarana = ?, gambar = ?, harga = ? WHERE id = ?";
-  db.query(query, [kecamatan, nama, sarana, gambar, harga, id], (err, result) => {
+  db.query(query, [kecamatan, nama, sarana, newGambar, harga, id], (err, result) => {
     if (err) {
       console.error('Error updating data:', err);
       res.status(500).send(err);
@@ -105,11 +140,10 @@ app.put('/backend/:id', upload.single('gambar'), (req, res) => {
   });
 });
 
-// Delete a data entry
+// Delete data
 app.delete('/backend/:id', (req, res) => {
   const { id } = req.params;
 
-  // First, retrieve the existing image name to delete the file
   const selectQuery = "SELECT gambar FROM webdis_data_estripora WHERE id = ?";
   db.query(selectQuery, [id], (err, result) => {
     if (err) {
@@ -124,7 +158,6 @@ app.delete('/backend/:id', (req, res) => {
         });
       }
 
-      // After deleting the image file, delete the data entry
       const query = "DELETE FROM webdis_data_estripora WHERE id = ?";
       db.query(query, [id], (err, result) => {
         if (err) {

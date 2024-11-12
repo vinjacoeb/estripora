@@ -1,71 +1,228 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
-function SaranaEdit() {
+const SaranaEdit = () => {
   const { id } = useParams();
-  const [form, setForm] = useState({
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
     kecamatan: '',
     nama: '',
     sarana: '',
-    gambar: '',
-    harga: ''
+    harga: '',
+    gambar: null
   });
-  const navigate = useNavigate();
+  
+  const [previewImage, setPreviewImage] = useState(null);
+  const [existingImage, setExistingImage] = useState('');
 
+  // Fetch existing data, including the full image URL
   useEffect(() => {
-    axios.get(`http://localhost:3001/backend/${id}`)
-      .then((response) => {
-        setForm(response.data);
-      })
-      .catch((error) => console.log(error));
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/backend/${id}`);
+        setFormData(response.data);
+        if (response.data.gambar) {
+          setExistingImage(response.data.gambar);
+          setPreviewImage(response.data.gambar);  // Set preview for existing image URL
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal!',
+          text: 'Gagal mengambil data. Silakan coba lagi.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+    };
+    fetchData();
   }, [id]);
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const handleSubmit = (e) => {
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        gambar: file
+      }));
+      // Set preview for the new image
+      setPreviewImage(URL.createObjectURL(file));
+      // Reset existing image since it will be replaced
+      setExistingImage('');
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    axios.put(`http://localhost:3001/backend/${id}`, form)
-      .then(() => {
-        navigate('/'); // Navigasi ke halaman utama atau daftar sarana setelah update
-      })
-      .catch((error) => console.log(error));
+    
+    const formDataToSend = new FormData();
+    formDataToSend.append('kecamatan', formData.kecamatan);
+    formDataToSend.append('nama', formData.nama);
+    formDataToSend.append('sarana', formData.sarana);
+    formDataToSend.append('harga', formData.harga);
+    
+    // If a new image is uploaded
+    if (formData.gambar instanceof File) {
+      formDataToSend.append('gambar', formData.gambar);
+    } else {
+      // If there's no new image, send the existing image name
+      formDataToSend.append('gambar', existingImage);
+    }
+
+    try {
+      await axios.put(`http://localhost:3001/backend/${id}`, formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Data berhasil diperbarui!',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      navigate('/admin-sarana');  // Redirect to /admin-sarana after successful edit
+    } catch (error) {
+      console.error('Error updating data:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: 'Gagal memperbarui data. Silakan coba lagi.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    }
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Edit Sarana</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Kecamatan: </label>
-          <input type="text" name="kecamatan" value={form.kecamatan} onChange={handleChange} required />
+    <div className="main-content">
+      <div className="page-content">
+        <div className="container-fluid">
+          <div className="row mb-4">
+            <div className="col-12">
+              <div className="page-title-box d-flex align-items-center justify-content-between">
+                <h2 className="font-weight-bold text-primary" style={{ fontSize: '2rem' }}>
+                  Edit Data Sarana
+                </h2>
+                <div className="page-title-right">
+                  <ol className="breadcrumb m-0">
+                    <li className="breadcrumb-item"><Link to="/">Xeloro</Link></li>
+                    <li className="breadcrumb-item"><Link to="/">Data Sarana</Link></li>
+                    <li className="breadcrumb-item active">Edit Data</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-12">
+              <div className="card">
+                <div className="card-body">
+                  <form onSubmit={handleSubmit}>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Kecamatan</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="kecamatan"
+                          value={formData.kecamatan}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Nama</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="nama"
+                          value={formData.nama}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Sarana</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="sarana"
+                          value={formData.sarana}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Harga</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          name="harga"
+                          value={formData.harga}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="col-md-12 mb-3">
+                        <label className="form-label">Gambar</label>
+                        <input
+                          type="file"
+                          className="form-control"
+                          name="gambar"
+                          onChange={handleFileChange}
+                          accept="image/*"
+                        />
+                        {previewImage && (
+                          <div className="mt-3">
+                            <p className="text-muted mb-2">
+                              {existingImage ? 'Gambar Saat Ini:' : 'Preview Gambar Baru:'}
+                            </p>
+                            <img
+                              src={previewImage}
+                              alt="Preview"
+                              style={{ width: '100%', maxWidth: '300px' }}
+                              className="border rounded"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="d-flex justify-content-end gap-2">
+                      <Link to="/admin-sarana" className="btn btn-secondary">
+                        Kembali
+                      </Link>
+                      <button type="submit" className="btn btn-primary">
+                        Simpan Perubahan
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Nama: </label>
-          <input type="text" name="nama" value={form.nama} onChange={handleChange} required />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Sarana: </label>
-          <input type="text" name="sarana" value={form.sarana} onChange={handleChange} required />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Gambar: </label>
-          <input type="text" name="gambar" value={form.gambar} onChange={handleChange} />
-          {/* Anda bisa menggunakan <input type="file" /> jika ingin mengunggah file baru */}
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Harga: </label>
-          <input type="number" name="harga" value={form.harga} onChange={handleChange} required />
-        </div>
-        <button type="submit">Simpan</button>
-      </form>
+      </div>
     </div>
   );
-}
+};
 
 export default SaranaEdit;
