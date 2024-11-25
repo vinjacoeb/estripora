@@ -130,6 +130,18 @@ export const router = createBrowserRouter([
 						path: "*",
 						element: <ErrorPage />,
 					},
+					{
+						path: "/reset-password",
+						element: <Reset />,
+					},
+					{
+						path: "/sign-up",
+						element: <SignUp />,
+					},
+					{
+						path: "/sign-in",
+						element: <SignIn />,
+					},
 				],
 			},
 			{
@@ -200,18 +212,7 @@ export const router = createBrowserRouter([
 						path: "/coming-soon",
 						element: <CommingSoon />,
 					},
-					{
-						path: "/reset-password",
-						element: <Reset />,
-					},
-					{
-						path: "/sign-up",
-						element: <SignUp />,
-					},
-					{
-						path: "/sign-in",
-						element: <SignIn />,
-					},
+					
 				],
 				path: "/",
 				element: <DashboardLayout />,
