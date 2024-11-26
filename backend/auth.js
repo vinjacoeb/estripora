@@ -157,6 +157,7 @@ router.post('/reset-password', async (req, res) => {
   });
   
   
+  
 
 // Middleware for token verification
 const verifyToken = (req, res, next) => {
@@ -175,6 +176,24 @@ const verifyToken = (req, res, next) => {
     next();
   });
 };
+
+router.get('/status', verifyToken, async (req, res) => {
+    try {
+      const userId = req.userId; // Dapatkan ID pengguna dari token
+      const query = 'SELECT status FROM webdis_user WHERE id = ?';
+      const result = await queryDB(query, [userId]);
+  
+      if (result.length === 0) {
+        return res.status(404).json({ error: 'User not found.' });
+      }
+  
+      const status = result[0].status;
+      res.status(200).json({ status });
+    } catch (err) {
+      console.error('Error fetching user status:', err);
+      res.status(500).json({ error: 'An error occurred while fetching user status.' });
+    }
+  });
 
 // Example route that requires authentication
 router.get('/profile', verifyToken, async (req, res) => {
