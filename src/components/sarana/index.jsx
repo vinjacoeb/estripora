@@ -9,7 +9,7 @@ function GridBlog() {
 
   // Fetching data from the backend
   useEffect(() => {
-    fetch("http://localhost:3001/backend") // Replace with your API URL
+    fetch("http://localhost:3001/api/sarana/depan") // Ensure your API URL matches your server
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch data");
@@ -18,7 +18,7 @@ function GridBlog() {
       })
       .then((data) => {
         console.log(data); // Log the fetched data to check its structure
-        const formattedData = data.map(item => ({
+        const formattedData = data.map((item) => ({
           id: item.id || crypto.randomUUID(), // Use item's ID if available, otherwise generate one
           nama: item.nama,
           kecamatan: item.kecamatan || "Unknown",
@@ -55,12 +55,12 @@ function GridBlog() {
           ) : error ? (
             <p>Error: {error}</p>
           ) : Object.keys(groupedBlogs).length > 0 ? (
-            Object.keys(groupedBlogs).map(sarana => (
+            Object.keys(groupedBlogs).map((sarana) => (
               <div key={sarana}>
                 <h3 style={{ paddingBottom: "20px" }}>{sarana}</h3> {/* Title for each sarana category */}
                 <div className="row" style={{ marginTop: "20px" }}>
-                  {groupedBlogs[sarana].slice(0, 4).map(blog => ( // Display up to 4 blogs per category
-                    <GridBlogCard key={blog.id} blog={blog} />
+                  {groupedBlogs[sarana].slice(0, 4).map((blog) => ( // Display up to 4 blogs per category
+                    <GridBlogCard key={blog.id} blog={blog} /> // Pass blog object including id
                   ))}
                 </div>
               </div>

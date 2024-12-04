@@ -37,11 +37,14 @@ import CommingSoon from "../page/utility/CommingSoon.jsx";
 import Faq from "../page/utility/Faq.jsx";
 import TestimonialPage from "../page/utility/Testimonial.jsx";
 import Sarana from "../page/Sarana.jsx";
+import SaranaDetail from "../page/SaranaDetailPage.jsx";
 import Cetak from "../page/Cetak.jsx";
 import Dashboard from "../page/admin/Dashboard.jsx";
 import AdminSarana from "../page/admin/Sarana.jsx";
 import AdminSaranaEdit from "../page/admin/SaranaEdit.jsx";
 import AdminSaranaTambah from "../page/admin/SaranaTambah.jsx";
+import AdminJamOperasional from "../page/admin/JamOperasional.jsx";
+import AdminJamOperasionalEdit from "../page/admin/JamOperasionalEdit.jsx";
 
 export const router = createBrowserRouter([
 	{
@@ -60,6 +63,10 @@ export const router = createBrowserRouter([
 						path: "/sarana",
 						element: <Sarana />,
 					},
+					{
+						path: "/sarana-detail/:id", // Use a dynamic segment for the ID
+						element: <SaranaDetail />,
+					  },
 					{
 						path: "/cetak",
 						element: <Cetak />,
@@ -232,6 +239,14 @@ export const router = createBrowserRouter([
 					{
 						path: "/admin-sarana/edit/:id",
 						element: <AdminSaranaEdit />, // Dashboard component
+					},
+					{
+						path: "/admin-JamOperasional",
+						element: <AdminJamOperasional />, // Dashboard component
+					},
+					{
+						path: "/admin-JamOperasional/edit/:id",
+						element: <AdminJamOperasionalEdit />, // Dashboard component
 					},
 					{
 						path: "*",

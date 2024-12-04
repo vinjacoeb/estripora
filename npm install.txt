@@ -4,5 +4,7 @@ cd backend
 npm init -y
 node server.js
 
-npm install jsonwebtoken bcryptjs
-npm install validator
+backend/npm install jsonwebtoken bcryptjs
+backend/npm install validator
+frontend/npm install react-datepicker
+

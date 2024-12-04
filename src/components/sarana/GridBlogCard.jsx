@@ -1,30 +1,140 @@
 import { Link } from "react-router-dom";
 
-function GridBlogCard({ blog: { nama, harga, gambar } }) {
+function GridBlogCard({ blog: { id, nama, harga, gambar } }) {
+  // Format the price as Rupiah
+  const formatRupiah = (number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(number);
+  };
+
   return (
-    <div className="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4">
-      <div className="single-post-item" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        <div className="post-thumbnail">
-        <img
-  src={`../../../public/${gambar}`} // Mengakses gambar dari public/images
-  alt={nama}
-  style={{ width: "100%", height: "auto", objectFit: "cover" }}
-/>
-
-
-        </div>
-        <div className="post-content" style={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "10px" }}>
-          <div>
-            <Link to="/single-blog">
-              <h3 className="entry-title" style={{ fontSize: "18px", fontWeight: "bold", marginBottom: "10px" }}>
+    <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-4">
+      <div
+        className="card-container"
+        style={{
+          borderRadius: "20px",
+          overflow: "hidden",
+          boxShadow: "0 0.5px 1px rgba(0, 0, 0, 0.1)",
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          backgroundColor: "#fff",
+          position: "relative",
+          transition: "transform 0.3s ease, box-shadow 0.3s ease",
+          cursor: "pointer",
+          width: "100%",
+          maxWidth: "100%",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "scale(1.05)"; // Scale effect on hover
+          e.currentTarget.style.boxShadow = "0 1px 2px rgba(0, 0, 0, 0.1)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "scale(1)";
+          e.currentTarget.style.boxShadow = "0 0.5px 1px rgba(0, 0, 0, 0.1)";
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            height: "400px",
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
+          <img
+            src={`/${gambar}`} // Assuming gambar is in the public folder
+            alt={nama}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover", // Cover the entire area
+              transition: "transform 0.3s ease",
+            }}
+            className="card-image"
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: "0",
+              left: "0",
+              right: "0",
+              backgroundColor: "rgba(0, 0, 0, 0.2)", // Semi-transparent background
+              color: "white",
+              padding: "20px",
+              textAlign: "left",
+              transition: "background-color 0.3s ease",
+            }}
+            className="card-text-overlay"
+          >
+            <Link to={`/sarana-detail/${id}`} style={{ textDecoration: "none" }}>
+              <h3
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  margin: "0",
+                  color: "white",
+                }}
+              >
                 {nama}
               </h3>
             </Link>
-            {/* Display the price below the building name, without a box */}
-            <p style={{ fontSize: "16px", fontWeight: "normal", color: "#333" }}>
-              {harga ? `Rp ${harga}` : "Harga tidak tersedia"}
+            <p
+              style={{
+                fontSize: "18px",
+                marginTop: "5px",
+                marginBottom: "0",
+                color: "white",
+              }}
+            >
+              {harga !== undefined
+                ? formatRupiah(harga) // Display formatted price
+                : "Harga tidak tersedia"}
             </p>
           </div>
+
+          {/* Arrow icon for navigation */}
+          <Link to={`/sarana-detail/${id}`} style={{ textDecoration: "none" }}>
+            <div
+              style={{
+                position: "absolute",
+                bottom: "10px",
+                right: "10px",
+                borderRadius: "50%", // Circular button
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: "10px",
+                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Soft shadow for depth
+                transition: "transform 0.3s ease", // Scale effect on hover
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.1)"; // Scale on hover
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)"; // Reset scale
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                stroke="white"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="feather feather-arrow-right"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </div>
+          </Link>
         </div>
       </div>
     </div>

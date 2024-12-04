@@ -52,8 +52,8 @@ const Sidebar = () => {
                                             <li>
                                                 <Link to="/admin-sarana">Sarana</Link> {/* Use Link for navigation */}
                                             </li>
-                                            <li><Link to="#">Tanggal</Link></li> {/* Placeholder */}
-                                            <li><Link to="#">Jam</Link></li> {/* Placeholder */}
+                                            <li><Link to="/admin-jamOperasional">Jam Operasional</Link></li> {/* Placeholder */}
+                                            <li><Link to="#">Harga</Link></li> {/* Placeholder */}
                                         </ul>
                                     )}
                                 </li>

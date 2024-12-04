@@ -1,80 +1,208 @@
+import { useState, useEffect } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import Blog3PreviewImg from "../../../assets/images/blog/blog3-preview.webp";
-import Blog3Img from "../../../assets/images/blog/blog3.png";
-import CommentForm from "./CommentForm";
-import CommentList from "./CommentList";
-import PostMeta from "./PostMeta";
-import PostTags from "./PostTags";
-function BlogDetails() {
-	return (
-		<>
-			<div className="post-thumbnail">
-				<LazyLoadImage
-					src={Blog3Img}
-					width={850}
-					height={500}
-					alt="Single blog image"
-					effect="blur"
-					placeholderSrc={Blog3PreviewImg}
-				/>
-			</div>
-			<div className="single-post-content-wrap">
-				<PostMeta />
-				<div className="entry-content">
-					<h3>Learn these five high-income skills to build your one-person business and get rich</h3>
-					<p>
-						By definition, most high-value skill stacks can’t be taught in schools. If the masses could
-						easily access them, they wouldn’t be high-value skills anymore. You would become replaceable.
-						And value comes from scarcity. Here’s the skill stack to thrive as a one-person business.
-					</p>
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css"; // Importing date picker styles
 
-					<span>#1: Learn to Tweet your way into a boardroom</span>
-					<p>
-						As a first-generation immigrant, money and networks weren’t given to me. So instead of going
-						through the front door, I tried a back door approach.
-					</p>
+// Format Time Function
+function formatTime(time) {
+  const [hours, minutes] = time.split(":");
+  return `${hours}:${minutes}`;
+}
 
-					<span>#2: Web Development and Design</span>
-					<p>
-						Proficiency in web development and design allows you to create and maintain websites for
-						clients. As more businesses and individuals seek an online presence.
-					</p>
+// Generate Available Times Based on Operational Hours
+function generateAvailableTimes(jam_mulai, jam_selesai) {
+  const start = parseInt(jam_mulai.split(":")[0]);
+  const end = parseInt(jam_selesai.split(":")[0]);
+  const times = [];
 
-					<blockquote>
-						"Mastering high-income skills can empower you to build a one-person business and create the path
-						to financial."
-					</blockquote>
+  for (let i = start; i < end; i++) {
+    const timeSlot = `${String(i).padStart(2, "0")}:00 - ${String(i + 1).padStart(2, "0")}:00`;
+    times.push(timeSlot);
+  }
 
-					<span>#3: Copywriting and Content Creation</span>
-					<p>
-						Strong copywriting and content creation skills are essential for creating persuasive, engaging,
-						and valuable content for websites, blogs, marketing materials, and social media.
-					</p>
+  return times;
+}
 
-					<span>#4: Digital Product Creation</span>
-					<p>
-						Creating digital products like e-books, online courses, webinars, or software can generate
-						substantial income. This skill involves not only product creation but also marketing and selling
-						these digital assets to your target audience.
-					</p>
+// Operational Hours Component
+function OperationalHours({ jamOperasional }) {
+  return (
+    <div className="operational-hours" style={{ marginTop: "20px", width: "100%" }}>
+      <h4>Jam Operasional</h4>
+      <br />
+      {jamOperasional.length > 0 ? (
+        <div className="operational-container">
+          {jamOperasional.map((jam, index) => (
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "10px 0",
+              }}
+            >
+              <span>{jam.hari}</span>
+              <span>
+                {formatTime(jam.jam_mulai)} - {formatTime(jam.jam_selesai)}
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>Tidak ada jam operasional yang tersedia.</p>
+      )}
+    </div>
+  );
+}
 
-					<span>#5: Sales and Persuasion</span>
-					<p>
-						Mastering the art of sales and persuasion can help you sell products or services, whether they
-						are your own or those of other businesses. Understanding consumer.
-					</p>
-					<p>
-						While these skills can help you build a one-person business and increase your income potential,
-						it's changing market trends. Additionally, starting and growing a business often involves more
-						than just one skill, so consider a holistic approach to building your business and wealth.
-					</p>
-					<PostTags />
-					<CommentList />
-					<CommentForm />
-				</div>
-			</div>
-		</>
-	);
+// Booking Section Component
+const BookingSection = ({ jamOperasional }) => {
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [availableTimes, setAvailableTimes] = useState([]);
+  const [selectedTime, setSelectedTime] = useState(null);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const dayIndex = selectedDate.getDay(); // 0: Sunday, 6: Saturday
+      const dayName = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][dayIndex];
+
+      const selectedDay = jamOperasional.find((jam) => jam.hari === dayName);
+
+      if (selectedDay) {
+        const times = generateAvailableTimes(selectedDay.jam_mulai, selectedDay.jam_selesai);
+        setAvailableTimes(times);
+      } else {
+        setAvailableTimes([]);
+      }
+    }
+  }, [selectedDate, jamOperasional]);
+
+  const handleBooking = async () => {
+    if (!selectedDate || !selectedTime) {
+      alert("Pilih tanggal dan jam bermain.");
+      return;
+    }
+
+    const bookingData = {
+      date: selectedDate.toISOString().split("T")[0], // Format tanggal
+      time: selectedTime,
+    };
+
+    try {
+      const response = await fetch("/api/save-booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (response.ok) {
+        alert("Booking berhasil!");
+        setSelectedDate(null);
+        setSelectedTime(null);
+      } else {
+        alert("Booking gagal, silakan coba lagi.");
+      }
+    } catch (error) {
+      console.error("Error during booking", error);
+      alert("Terjadi kesalahan, silakan coba lagi.");
+    }
+  };
+
+  return (
+    <div className="booking-section" style={{ marginTop: "40px" }}>
+      <h4>Pilih Tanggal Bermain</h4>
+      <DatePicker
+        selected={selectedDate}
+        onChange={(date) => setSelectedDate(date)}
+        minDate={new Date()}
+        dateFormat="dd/MM/yyyy"
+        inline
+      />
+
+      <h4>Pilih Jam Bermain</h4>
+      <div className="time-selection" style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+        {availableTimes.length > 0 ? (
+          availableTimes.map((time, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedTime(time)}
+              style={{
+                padding: "10px 20px",
+                borderRadius: "8px",
+                border: "1px solid #ccc",
+                backgroundColor: selectedTime === time ? "#007bff" : "#f1f1f1",
+                color: selectedTime === time ? "#fff" : "#000",
+                cursor: "pointer",
+                minWidth: "100px",
+              }}
+            >
+              {time}
+            </button>
+          ))
+        ) : (
+          <p>Tidak ada jam bermain tersedia.</p>
+        )}
+      </div>
+
+      <div style={{ marginTop: "20px" }}>
+        <h5>Durasi Booking</h5>
+        <p>
+          {selectedDate ? selectedDate.toLocaleDateString("id-ID") : "Pilih tanggal"} -{" "}
+          {selectedTime || "Pilih waktu"}
+        </p>
+      </div>
+
+      <button
+        onClick={handleBooking}
+        style={{
+          marginTop: "20px",
+          padding: "10px 20px",
+          backgroundColor: "#28a745",
+          color: "#fff",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+        }}
+      >
+        Booking Sekarang
+      </button>
+    </div>
+  );
+};
+
+// Main BlogDetails Component
+function BlogDetails({ id, nama, gambar, harga, kecamatan, deskripsi, jam_operasional }) {
+  return (
+    <>
+      <div className="post-thumbnail" style={{ marginBottom: "20px" }}>
+        <LazyLoadImage
+          src={`/${gambar}`}
+          width={850}
+          height={400}
+          alt={nama}
+          effect="blur"
+          style={{ borderRadius: "8px" }}
+        />
+      </div>
+
+      <div className="post-details-content" style={{ marginTop: "30px" }}>
+        <h2>{nama}</h2>
+        <p>{deskripsi}</p>
+        <div className="details">
+          <div className="price">
+            <span>Harga: {harga}</span>
+          </div>
+          <div className="location">
+            <span>{kecamatan}</span>
+          </div>
+        </div>
+
+        <OperationalHours jamOperasional={jam_operasional} />
+        <BookingSection jamOperasional={jam_operasional} />
+      </div>
+    </>
+  );
 }
 
 export default BlogDetails;

@@ -5,6 +5,9 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const authRoutes = require('./auth'); // Import the auth routes
+const saranaRoutes = require("./sarana");
+const adminJamRoutes = require('./adminJam');
+
 
 const app = express();
 
@@ -18,6 +21,8 @@ app.use('/images', express.static(path.join(__dirname, 'uploads')));  // Serve s
 
 // Middleware for auth routes
 app.use('/api/auth', authRoutes);  // Prefix all routes from auth.js with /api/auth
+app.use("/api/sarana", saranaRoutes);
+app.use('/api/adminJam', adminJamRoutes);
 
 // Database connection
 const db = mysql.createConnection({
