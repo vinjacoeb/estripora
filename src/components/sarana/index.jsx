@@ -24,7 +24,7 @@ function GridBlog() {
           kecamatan: item.kecamatan || "Unknown",
           harga: item.harga || "Harga tidak tersedia",
           gambar: item.gambar || "default-image-url",
-          sarana: item.sarana || "Uncategorized", // Default to "Uncategorized" if not specified
+          sarana: item.sarana || "unknown",
         }));
         setBlogs(formattedData);
         setLoading(false);
@@ -36,12 +36,12 @@ function GridBlog() {
       });
   }, []);
 
-  // Group blogs by sarana
+  // Group blogs by nama
   const groupedBlogs = blogs.reduce((acc, blog) => {
-    if (!acc[blog.sarana]) {
-      acc[blog.sarana] = [];
+    if (!acc[blog.nama]) {
+      acc[blog.nama] = [];
     }
-    acc[blog.sarana].push(blog);
+    acc[blog.nama].push(blog);
     return acc;
   }, {});
 
@@ -55,11 +55,11 @@ function GridBlog() {
           ) : error ? (
             <p>Error: {error}</p>
           ) : Object.keys(groupedBlogs).length > 0 ? (
-            Object.keys(groupedBlogs).map((sarana) => (
-              <div key={sarana}>
-                <h3 style={{ paddingBottom: "20px" }}>{sarana}</h3> {/* Title for each sarana category */}
+            Object.keys(groupedBlogs).map((nama) => (
+              <div key={nama}>
+                <h3 style={{ paddingBottom: "20px" }}>{nama}</h3> {/* Title for each nama category */}
                 <div className="row" style={{ marginTop: "20px" }}>
-                  {groupedBlogs[sarana].slice(0, 4).map((blog) => ( // Display up to 4 blogs per category
+                  {groupedBlogs[nama].slice(0, 4).map((blog) => ( // Display up to 4 blogs per category
                     <GridBlogCard key={blog.id} blog={blog} /> // Pass blog object including id
                   ))}
                 </div>

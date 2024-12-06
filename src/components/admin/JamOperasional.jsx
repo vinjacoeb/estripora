@@ -104,6 +104,7 @@ const JamOperasional = () => {
                         <thead className="thead-light">
                           <tr>
                             <th className="text-center" style={{ width: '5%' }}>No</th>
+                            <th style={{ width: '50%' }}>Nama</th>
                             <th style={{ width: '50%' }}>Sarana</th>
                             <th className="text-center" style={{ width: '20%' }}>Aksi</th>
                           </tr>
@@ -112,6 +113,8 @@ const JamOperasional = () => {
                           {currentItems.map((jam, index) => (
                             <tr key={jam.id}>
                               <td className="text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                              
+                              <td>{jam.nama}</td>
                               <td>{jam.sarana}</td>
                               <td className="text-center">
                                 <div className="btn-group">

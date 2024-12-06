@@ -54,7 +54,7 @@ router.get('/detail/:id', async (req, res) => {
         // Query untuk mengambil data detail sarana beserta jam operasional
         const query = `
             SELECT 
-                id, nama, kecamatan, harga, gambar,
+                id, nama, sarana, kecamatan, harga, gambar,
                 hari1, jam1, jam11, 
                 hari2, jam2, jam22, 
                 hari3, jam3, jam33, 
@@ -87,6 +87,7 @@ router.get('/detail/:id', async (req, res) => {
         const formattedDetail = {
             id: detail.id,
             nama: detail.nama || 'Nama tidak tersedia',
+            sarana: detail.sarana || 'Nama tidak tersedia',
             kecamatan: detail.kecamatan || 'Kecamatan tidak tersedia',
             harga: detail.harga || 'Harga tidak tersedia',
             gambar: `../backend/uploads/${detail.gambar}` || null,

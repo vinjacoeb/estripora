@@ -49,7 +49,7 @@ router.get('/jam/:id', async (req, res) => {
 
     const query = `
       SELECT 
-        sarana,
+        sarana,nama,
         hari1, jam1, jam11, 
         hari2, jam2, jam22, 
         hari3, jam3, jam33, 
