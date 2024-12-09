@@ -109,6 +109,7 @@ router.get('/detail/:id', async (req, res) => {
 
 
 
+
   
 
 // Export the router

@@ -6,5 +6,11 @@ node server.js
 
 backend/npm install jsonwebtoken bcryptjs
 backend/npm install validator
+backend/npm install midtrans-client
+npm install dotenv
+
+
 frontend/npm install react-datepicker
+frontend/npm install date-fns
+
 

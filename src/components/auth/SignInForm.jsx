@@ -34,7 +34,8 @@ const submitForm = async (formData) => {
 	  if (response.ok) {
 		// Store the token and userName (or any other user info) in localStorage
 		localStorage.setItem("token", data.token);
-		localStorage.setItem("userName", data.userName); // Make sure your API returns this data
+		localStorage.setItem("userName", data.userName);
+    localStorage.setItem("id", data.id); // Make sure your API returns this data
   
 		if (data.status === 1) {
 		  navigate("/");  // Redirect to home if status is 1

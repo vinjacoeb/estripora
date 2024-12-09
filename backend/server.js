@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
@@ -7,6 +8,7 @@ const fs = require('fs');
 const authRoutes = require('./auth'); // Import the auth routes
 const saranaRoutes = require("./sarana");
 const adminJamRoutes = require('./adminJam');
+const paymentRoutes = require('./payment');
 
 
 const app = express();
@@ -23,6 +25,8 @@ app.use('/images', express.static(path.join(__dirname, 'uploads')));  // Serve s
 app.use('/api/auth', authRoutes);  // Prefix all routes from auth.js with /api/auth
 app.use("/api/sarana", saranaRoutes);
 app.use('/api/adminJam', adminJamRoutes);
+app.use('/api/payment', paymentRoutes);
+
 
 // Database connection
 const db = mysql.createConnection({
@@ -31,6 +35,9 @@ const db = mysql.createConnection({
   password: '',
   database: 'disporas_web'
 });
+
+
+
 
 db.connect((err) => {
   if (err) {
