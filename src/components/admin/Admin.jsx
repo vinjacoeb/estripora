@@ -1,29 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const JamOperasional = () => {
-  const [jamList, setJamList] = useState([]);
+const Admin = () => {
+  const [adminList, setAdminList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const itemsPerPage = 5;
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchJamList();
+    fetchAdminList();
   }, []);
 
-  const fetchJamList = async () => {
+  const fetchAdminList = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/adminJam/jam');
-      setJamList(response.data.data || []);
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:3001/api/akun/akun', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      // Filter data hanya untuk status 2 (Admin)
+      const filteredData = response.data.filter(admin => admin.status === 2).map(admin => ({
+        ...admin,
+        status: 'Admin' // Ubah nilai status numerik menjadi kategori "Admin"
+      }));
+      setAdminList(filteredData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal Memuat Data',
-        text: 'Terjadi kesalahan saat memuat data. Silakan coba lagi nanti.',
-      });
+      if (error.response && error.response.data.message === 'Invalid token.') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Sesi Berakhir',
+          text: 'Silakan login kembali.',
+        });
+        navigate('/login');
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Memuat Data',
+          text: 'Terjadi kesalahan saat memuat data. Silakan coba lagi nanti.',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -40,31 +60,45 @@ const JamOperasional = () => {
       confirmButtonText: 'Ya, hapus!',
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteJam(id);
+        deleteAdmin(id);
       }
     });
   };
 
-  const deleteJam = async (id) => {
+  const deleteAdmin = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/api/adminJam/jam/${id}`);
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3001/api/akun/admin/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       Swal.fire('Berhasil!', 'Data telah dihapus.', 'success');
-      fetchJamList();
+      fetchAdminList();
     } catch (error) {
       console.error('Error deleting data:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal Menghapus Data',
-        text: 'Terjadi kesalahan saat menghapus data. Silakan coba lagi.',
-      });
+      if (error.response && error.response.data.message === 'Invalid token.') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Sesi Berakhir',
+          text: 'Silakan login kembali.',
+        });
+        navigate('/login');
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Menghapus Data',
+          text: 'Terjadi kesalahan saat menghapus data. Silakan coba lagi.',
+        });
+      }
     }
   };
 
   // Pagination calculation
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = jamList.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(jamList.length / itemsPerPage);
+  const currentItems = adminList.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(adminList.length / itemsPerPage);
 
   return (
     <div className="main-content">
@@ -75,12 +109,12 @@ const JamOperasional = () => {
             <div className="col-12">
               <div className="page-title-box d-flex align-items-center justify-content-between">
                 <h2 className="font-weight-bold text-primary" style={{ fontSize: '2rem' }}>
-                  Jam Operasional
+                  Admin Management
                 </h2>
                 <div className="page-title-right">
                   <ol className="breadcrumb m-0">
                     <li className="breadcrumb-item"><Link to="/">Home</Link></li>
-                    <li className="breadcrumb-item active">Jam Operasional</li>
+                    <li className="breadcrumb-item active">Admin Management</li>
                   </ol>
                 </div>
               </div>
@@ -92,6 +126,11 @@ const JamOperasional = () => {
             <div className="col-12">
               <div className="card">
                 <div className="card-body">
+                <div className="mb-3">
+                    <Link to="/admin-admin/add" className="btn btn-success">
+                      <i className="fas fa-plus mr-1"></i> Tambah Sarana
+                    </Link>
+                  </div>
                   {isLoading ? (
                     <div className="text-center">
                       <div className="spinner-border text-primary" role="status">
@@ -104,22 +143,23 @@ const JamOperasional = () => {
                         <thead className="thead-light">
                           <tr>
                             <th className="text-center" style={{ width: '5%' }}>No</th>
-                            <th style={{ width: '50%' }}>Nama</th>
-                            <th style={{ width: '50%' }}>Sarana</th>
-                            <th className="text-center" style={{ width: '20%' }}>Aksi</th>
+                            <th style={{ width: '35%' }}>Name</th>
+                            <th style={{ width: '40%' }}>Email</th>
+                            <th style={{ width: '10%' }}>Status</th>
+                            <th className="text-center" style={{ width: '10%' }}>Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {currentItems.map((jam, index) => (
-                            <tr key={jam.id}>
+                          {currentItems.map((admin, index) => (
+                            <tr key={admin.id}>
                               <td className="text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                              
-                              <td>{jam.nama}</td>
-                              <td>{jam.sarana}</td>
+                              <td>{admin.user}</td>
+                              <td>{admin.email}</td>
+                              <td>{admin.status}</td>
                               <td className="text-center">
                               <div className="d-flex justify-content-center gap-2">
                                 <Link 
-                                  to={`/admin-JamOperasional/edit/${jam.id}`}
+                                  to={`/admin-admin/edit/${admin.id}`}
                                   className="btn btn-primary p-1"
                                   style={{ 
                                     width: '28px', 
@@ -135,7 +175,7 @@ const JamOperasional = () => {
                                   <i className="fas fa-edit fa-sm"></i>
                                 </Link>
                                 <button 
-                                  onClick={() => handleDeleteClick(jam.id)}
+                                  onClick={() => handleDeleteClick(admin.id)}
                                   className="btn btn-danger p-1"
                                   style={{ 
                                     width: '28px', 
@@ -194,4 +234,4 @@ const JamOperasional = () => {
   );
 };
 
-export default JamOperasional;
+export default Admin;

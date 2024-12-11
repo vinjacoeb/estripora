@@ -69,8 +69,8 @@ const Sidebar = () => {
                                     </a>
                                     {isPenggunaOpen && (
                                         <ul className="sub-menu" aria-expanded="false">
-                                            <li><Link to="#">Admin</Link></li> {/* Placeholder */}
-                                            <li><Link to="#">User</Link></li> {/* Placeholder */}
+                                            <li><Link to="/admin-admin">Admin</Link></li> {/* Placeholder */}
+                                            <li><Link to="/admin-user">User</Link></li> {/* Placeholder */}
                                         </ul>
                                     )}
                                 </li>
