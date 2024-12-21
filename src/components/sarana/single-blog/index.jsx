@@ -61,7 +61,7 @@ function SingleBlog() {
           <div className="col-12 col-md-10 col-lg-8 mx-auto">
             <BlogDetails
               nama={blog.nama || "Untitled Blog"}
-			  sarana={blog.sarana || "Untitled Blog"}
+			        sarana={blog.sarana || "Untitled Blog"}
               gambar={blog.gambar || "default-image.jpg"}
               gambar1={blog.gambar1 || "default-image.jpg"}
               gambar2={blog.gambar2 || "default-image.jpg"}

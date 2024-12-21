@@ -84,27 +84,26 @@ router.get('/user', verifyToken, async (req, res) => {
   
   
 
-// Endpoint untuk membuat transaksi Midtrans
 router.post("/bayar", async (req, res) => {
   console.log("Request Body:", req.body);  // Log request body untuk memastikan data yang diterima
   
   const snap = new midtransClient.Snap({
-    isProduction: false, // Sandbox mode
+    isProduction: false,  // Sandbox mode
     serverKey: "SB-Mid-server-SouJaulVpqc4iMyS1ufhevg7",  // Ganti dengan Server Key Anda
   });
 
   try {
-    const { customer_details, item_details } = req.body;
+    const { transaction_details, customer_details, item_details } = req.body;
 
     if (!customer_details || !customer_details.id || !customer_details.name || !customer_details.email) {
       return res.status(400).json({ message: "Data pengguna tidak lengkap." });
     }
 
-    // Data Transaksi
+    // Data Transaksi untuk Midtrans
     const transactionData = {
       transaction_details: {
         order_id: `order-${new Date().getTime()}`,
-        gross_amount: req.body.transaction_details.gross_amount, // Pastikan harga sesuai dengan yang dikirimkan
+        gross_amount: transaction_details.gross_amount,  // Pastikan harga sesuai dengan yang dikirimkan
       },
       customer_details: {
         name: customer_details.name,
@@ -121,6 +120,40 @@ router.post("/bayar", async (req, res) => {
 
     if (transaction && transaction.token) {
       console.log("Token Transaksi:", transaction.token);
+
+      // Menyimpan data transaksi ke database
+      item_details.forEach((item) => {
+        const { tanggal, name: sarana, price, quantity, start_time, end_time } = item;
+        const status = 'Menunggu Pembayaran Diverifikasi';  // Default status
+
+        const query = `
+          INSERT INTO transactions (order_id, gross_amount, customer_name, customer_email, sarana, tanggal, price, quantity, start_time, end_time, status)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        const values = [
+          transactionData.transaction_details.order_id,
+          transactionData.transaction_details.gross_amount,
+          customer_details.name,
+          customer_details.email,
+          sarana,
+          tanggal,
+          price,
+          quantity,
+          start_time,
+          end_time,
+          status
+        ];
+
+        db.query(query, values, (err, result) => {
+          if (err) {
+            console.error("Error inserting transaction:", err);
+            return res.status(500).send("Error inserting transaction.");
+          }
+          console.log("Transaction inserted:", result);
+        });
+      });
+
+      // Mengirimkan token transaksi Midtrans ke frontend
       res.status(200).json({ token: transaction.token });
     } else {
       res.status(500).json({ message: "Transaksi gagal dibuat." });

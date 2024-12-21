@@ -60,7 +60,7 @@ function OperationalHours({ jamOperasional }) {
 }
 
 // Booking Section Component
-const BookingSection = ({ jamOperasional, harga }) => {
+const BookingSection = ({ jamOperasional, harga, sarana }) => {
   const [selectedDates, setSelectedDates] = useState([]);
   const [selectedTimes, setSelectedTimes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
@@ -169,14 +169,26 @@ const BookingSection = ({ jamOperasional, harga }) => {
         name: user.name,
         email: user.email,
       },
-      item_details: selectedDates.map((date) => ({
-        name: `Pemesanan pada ${format(date, "yyyy-MM-dd")}`,
-        price: harga,
-        quantity: (selectedTimes[format(date, "yyyy-MM-dd")] || []).length,
-      })),
+      item_details: selectedDates.map((date) => {
+        const dateString = format(date, "yyyy-MM-dd");
+        const times = selectedTimes[dateString] || [];
+  
+        // Tentukan jam mulai dan jam selesai
+        const jamMulai = times.length > 0 ? times[0] : "N/A";
+        const jamSelesai = times.length > 0 ? times[times.length - 1] : "N/A";
+  
+        return {
+          tanggal: `${dateString}`,
+          name: `${sarana}`,
+          price: harga,
+          quantity: times.length,
+          start_time: jamMulai,
+          end_time: jamSelesai,
+        };
+      }),
     };
   
-    console.log("Booking Data yang dikirim:", bookingData);  // Log untuk memverifikasi data
+    console.log("Booking Data yang dikirim:", bookingData); // Verifikasi data
   
     try {
       const response = await fetch("http://localhost:3001/api/payment/bayar", {
@@ -194,15 +206,15 @@ const BookingSection = ({ jamOperasional, harga }) => {
   
       // Panggil Midtrans Snap untuk memulai transaksi
       snap.pay(data.token, {
-        onSuccess: function(result) {
+        onSuccess: function (result) {
           alert("Pembayaran berhasil!");
           console.log(result);
         },
-        onPending: function(result) {
+        onPending: function (result) {
           alert("Pembayaran masih pending.");
           console.log(result);
         },
-        onError: function(result) {
+        onError: function (result) {
           alert("Terjadi kesalahan saat pembayaran.");
           console.log(result);
         },
@@ -213,6 +225,7 @@ const BookingSection = ({ jamOperasional, harga }) => {
     }
   };
   
+
   
 
   return (
@@ -327,7 +340,7 @@ function BlogDetails({ id, nama, sarana, gambar, harga, kecamatan, jam_operasion
       />
       <h2>{nama} - {sarana}</h2>
       <OperationalHours jamOperasional={jam_operasional} />
-      <BookingSection jamOperasional={jam_operasional} harga={harga} />
+      <BookingSection sarana={sarana} jamOperasional={jam_operasional} harga={harga} />
     </>
   );
 }
