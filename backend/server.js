@@ -10,6 +10,8 @@ const saranaRoutes = require("./sarana");
 const adminJamRoutes = require('./adminJam');
 const paymentRoutes = require('./payment');
 const pembayaranRoutes = require('./pembayaran');
+const adminheaderRoutes = require('./adminheader');
+const akunRoutes = require('./akun');
 
 const app = express();
 
@@ -27,6 +29,8 @@ app.use("/api/sarana", saranaRoutes);
 app.use('/api/adminJam', adminJamRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/pembayaran', pembayaranRoutes);
+app.use('/api/adminheader', adminheaderRoutes);
+app.use('/api/akun', akunRoutes);
 
 // Database connection
 const db = mysql.createConnection({
