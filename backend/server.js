@@ -9,7 +9,7 @@ const authRoutes = require('./auth'); // Import the auth routes
 const saranaRoutes = require("./sarana");
 const adminJamRoutes = require('./adminJam');
 const paymentRoutes = require('./payment');
-
+const pembayaranRoutes = require('./pembayaran');
 
 const app = express();
 
@@ -26,7 +26,7 @@ app.use('/api/auth', authRoutes);  // Prefix all routes from auth.js with /api/a
 app.use("/api/sarana", saranaRoutes);
 app.use('/api/adminJam', adminJamRoutes);
 app.use('/api/payment', paymentRoutes);
-
+app.use('/api/pembayaran', pembayaranRoutes);
 
 // Database connection
 const db = mysql.createConnection({

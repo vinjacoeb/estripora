@@ -5,6 +5,7 @@ const Sidebar = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(true); // Controls sidebar visibility
     const [isSaranaPrasaranaOpen, setSaranaPrasaranaOpen] = useState(false);
     const [isPenggunaOpen, setPenggunaOpen] = useState(false);
+    const [isTransaksiOpen, setTransaksiOpen] = useState(false); // State for Transaksi menu
 
     return (
         <div>
@@ -54,6 +55,24 @@ const Sidebar = () => {
                                             </li>
                                             <li><Link to="/admin-jamOperasional">Jam Operasional</Link></li> {/* Placeholder */}
                                             <li><Link to="#">Harga</Link></li> {/* Placeholder */}
+                                        </ul>
+                                    )}
+                                </li>
+
+                                
+                                <li>
+                                    <a
+                                        href="javascript:void(0);"
+                                        className="has-arrow waves-effect"
+                                        onClick={() => setTransaksiOpen(!isTransaksiOpen)}
+                                    >
+                                        <i className="mdi mdi-cash-multiple"></i>
+                                        <span>Transaksi</span>
+                                    </a>
+                                    {isTransaksiOpen && (
+                                        <ul className="sub-menu" aria-expanded="false">
+                                            <li><Link to="/admin-pembayaran">Pembayaran</Link></li>
+                                            <li><Link to="/admin-pembatalan">Pembatalan</Link></li>
                                         </ul>
                                     )}
                                 </li>
