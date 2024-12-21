@@ -45,6 +45,9 @@ import AdminSaranaEdit from "../page/admin/SaranaEdit.jsx";
 import AdminSaranaTambah from "../page/admin/SaranaTambah.jsx";
 import AdminJamOperasional from "../page/admin/JamOperasional.jsx";
 import AdminJamOperasionalEdit from "../page/admin/JamOperasionalEdit.jsx";
+import AdminPembayaran from "../page/admin/Pembayaran.jsx";
+import AdminPembayaranEdit from "../page/admin/PembayaranEdit.jsx";
+import AdminPembatalan from "../page/admin/Pembatalan.jsx";
 import Adminadmin from "../page/admin/Admin.jsx";
 import AdminadminEdit from "../page/admin/AdminEdit.jsx";
 import AdminadminTambah from "../page/admin/AdminTambah.jsx";
@@ -253,6 +256,18 @@ export const router = createBrowserRouter([
 						element: <AdminJamOperasionalEdit />, // Dashboard component
 					},
 					{
+						path: "/admin-pembatalan",
+						element: <AdminPembatalan />, // Dashboard component
+					},
+					{
+						path: "/admin-pembayaran",
+						element: <AdminPembayaran />, // Dashboard component
+					},
+					{
+						path: "/admin-pembayaran/edit/:id",
+						element: <AdminPembayaranEdit />,
+					},
+					{
 						path: "/admin-admin",
 						element: <Adminadmin />, // Dashboard component
 					},
@@ -267,18 +282,6 @@ export const router = createBrowserRouter([
 					{
 						path: "/admin-user",
 						element: <AdminUser />, // Dashboard component
-					},
-					{
-						path: "/admin-pembatalan",
-						element: <AdminPembatalan />, // Dashboard component
-					},
-					{
-						path: "/admin-pembayaran",
-						element: <AdminPembayaran />, // Dashboard component
-					},
-					{
-						path: "/admin-pembayaran/edit/:id",
-						element: <AdminPembayaranEdit />, // Dashboard component
 					},
 					{
 						path: "*",
