@@ -18,7 +18,7 @@ const Header = () => {
         });
 
         // Setel username dari respons
-        setUsername(response.data.name);
+        setUsername(response.data.user);
       } catch (error) {
         console.error('Error fetching username:', error);
       }

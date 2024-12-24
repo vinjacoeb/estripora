@@ -121,7 +121,7 @@ const Sarana = () => {
               <div className="card">
                 <div className="card-body">
                   <div className="mb-3">
-                    <Link to="/admin-sarana/add" className="btn btn-success">
+                    <Link to="/admin-kategori/add" className="btn btn-success">
                       <i className="fas fa-plus mr-1"></i> Tambah Sarana
                     </Link>
                   </div>
@@ -156,7 +156,7 @@ const Sarana = () => {
                             <td className="text-center align-middle">
                               <div className="d-flex justify-content-center gap-2">
                                 <Link 
-                                  to={`/admin-sarana/edit/${sarana.id_sarana}`}
+                                  to={`/admin-kategori/edit/${sarana.id_sarana}`}
                                   className="btn btn-primary p-1"
                                   style={{ 
                                     width: '28px', 

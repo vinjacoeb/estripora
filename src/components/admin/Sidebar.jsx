@@ -50,6 +50,7 @@ const Sidebar = () => {
                                     </a>
                                     {isSaranaPrasaranaOpen && (
                                         <ul className="sub-menu" aria-expanded="false">
+                                            <li><Link to="/admin-kategori">Kategori</Link></li>
                                             <li>
                                                 <Link to="/admin-sarana">Sarana</Link> {/* Use Link for navigation */}
                                             </li>
@@ -72,7 +73,6 @@ const Sidebar = () => {
                                     {isTransaksiOpen && (
                                         <ul className="sub-menu" aria-expanded="false">
                                             <li><Link to="/admin-pembayaran">Pembayaran</Link></li>
-                                            <li><Link to="/admin-pembatalan">Pembatalan</Link></li>
                                         </ul>
                                     )}
                                 </li>

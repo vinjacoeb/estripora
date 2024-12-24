@@ -37,7 +37,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'disporas_web'
+  database: 'estripora'
 });
 
 
@@ -86,9 +86,23 @@ const upload = multer({ storage });
 
 // Routes
 
-// Get all data
 app.get('/backend', (req, res) => {
-  const query = "SELECT id, kecamatan, nama, sarana, gambar, harga FROM webdis_data_estripora";
+  const query = `
+    SELECT 
+      sarana.id_sarana, 
+      sarana.nama_sarana, 
+      sarana.gambar, 
+      sarana.harga, 
+      sarana.deskripsi, 
+      kategori.nama_kategori
+    FROM 
+      sarana
+    JOIN 
+      kategori 
+    ON 
+      sarana.id_kategori = kategori.id_kategori
+  `;
+
   db.query(query, (err, result) => {
     if (err) {
       console.error('Error fetching data:', err);
@@ -99,10 +113,22 @@ app.get('/backend', (req, res) => {
   });
 });
 
+
 // Get single data
 app.get('/backend/:id', (req, res) => {
   const { id } = req.params;
-  const query = "SELECT id, kecamatan, nama, sarana, gambar, harga FROM webdis_data_estripora WHERE id = ?";
+  const query = `
+    SELECT 
+      id_sarana, 
+      nama_sarana, 
+      gambar, 
+      harga, 
+      deskripsi
+    FROM 
+      sarana
+    WHERE
+      id_sarana =?
+  `;
   db.query(query, [id], (err, result) => {
     if (err) {
       console.error('Error fetching data:', err);
@@ -116,30 +142,65 @@ app.get('/backend/:id', (req, res) => {
   });
 });
 
-// Add new data
-app.post('/backend', upload.single('gambar'), (req, res) => {
-  const { kecamatan, nama, sarana, harga } = req.body;
-  const gambar = req.file ? req.file.filename : null;
-  const query = "INSERT INTO webdis_data_estripora (kecamatan, nama, sarana, gambar, harga) VALUES (?, ?, ?, ?, ?)";
-  db.query(query, [kecamatan, nama, sarana, gambar, harga], (err, result) => {
+// Get categories
+app.get('/categories', (req, res) => {
+  const query = `SELECT id_kategori, nama_kategori FROM kategori ORDER BY nama_kategori ASC`;
+  db.query(query, (err, results) => {
     if (err) {
-      console.error('Error inserting data:', err);
-      res.status(500).send(err);
-    } else {
-      res.send(result);
+      console.error('Error fetching categories:', err);
+      return res.status(500).send(err);
     }
+    res.json(results);
   });
 });
+
+// Add new data
+app.post('/backend-add', upload.single('gambar'), (req, res) => {
+  const { nama, sarana, harga, deskripsi } = req.body;
+  const gambar = req.file ? req.file.filename : null;
+
+  if (!nama || !sarana || !harga) {
+    return res.status(400).json({ message: 'Semua data wajib diisi.' });
+  }
+
+  const id_kategori = sarana;
+
+  const queryLastId = `SELECT id_sarana FROM sarana WHERE id_kategori = ? ORDER BY id_sarana DESC LIMIT 1`;
+  db.query(queryLastId, [id_kategori], (err, result) => {
+    if (err) {
+      console.error('Error fetching last id_sarana:', err);
+      return res.status(500).send(err);
+    }
+
+    let newIdSarana = `${id_kategori}-001`;
+    if (result.length > 0) {
+      const lastId = result[0].id_sarana;
+      const lastNumber = lastId.split('-')[1];
+      const newNumber = (parseInt(lastNumber) + 1).toString().padStart(3, '0');
+      newIdSarana = `${id_kategori}-${newNumber}`;
+    }
+
+    const queryInsert = `INSERT INTO sarana (id_sarana, nama_sarana, gambar, harga,deskripsi, id_kategori) VALUES (?, ?, ?, ?, ?,?)`;
+    db.query(queryInsert, [newIdSarana, nama, gambar, harga,deskripsi, id_kategori], (err, result) => {
+      if (err) {
+        console.error('Error inserting data:', err);
+        return res.status(500).send(err);
+      }
+      res.json({ message: 'Data berhasil ditambahkan', data: result });
+    });
+  });
+});
+
 
 // Update data
 app.put('/backend/:id', upload.single('gambar'), (req, res) => {
   const { id } = req.params;
-  const { kecamatan, nama, sarana, harga } = req.body;
+  const { nama_sarana, harga, deskripsi } = req.body;
   const newGambar = req.file ? req.file.filename : req.body.gambar;
 
   // Delete old image if uploading a new one
   if (req.file) {
-    const selectQuery = "SELECT gambar FROM webdis_data_estripora WHERE id = ?";
+    const selectQuery = "SELECT gambar FROM sarana WHERE id_sarana = ?";
     db.query(selectQuery, [id], (err, result) => {
       if (err) {
         console.error('Error fetching old image:', err);
@@ -152,8 +213,8 @@ app.put('/backend/:id', upload.single('gambar'), (req, res) => {
     });
   }
 
-  const query = "UPDATE webdis_data_estripora SET kecamatan = ?, nama = ?, sarana = ?, gambar = ?, harga = ? WHERE id = ?";
-  db.query(query, [kecamatan, nama, sarana, newGambar, harga, id], (err, result) => {
+  const query = "UPDATE sarana SET nama_sarana = ?,  gambar = ?, harga = ?, deskripsi = ? WHERE id_sarana = ?";
+  db.query(query, [nama_sarana, newGambar, harga, deskripsi, id], (err, result) => {
     if (err) {
       console.error('Error updating data:', err);
       res.status(500).send(err);
@@ -167,11 +228,14 @@ app.put('/backend/:id', upload.single('gambar'), (req, res) => {
 app.delete('/backend/:id', (req, res) => {
   const { id } = req.params;
 
-  const selectQuery = "SELECT gambar FROM webdis_data_estripora WHERE id = ?";
+  const selectQuery = "SELECT gambar FROM sarana WHERE id_sarana = ?";
   db.query(selectQuery, [id], (err, result) => {
     if (err) {
       console.error('Error fetching image for deletion:', err);
       res.status(500).send(err);
+    } else if (result.length === 0) {  // Check if no result was found
+      console.error('No data found for id:', id);
+      res.status(404).send('Data not found');
     } else {
       const gambar = result[0].gambar;
       if (gambar) {
@@ -181,7 +245,7 @@ app.delete('/backend/:id', (req, res) => {
         });
       }
 
-      const query = "DELETE FROM webdis_data_estripora WHERE id = ?";
+      const query = "DELETE FROM sarana WHERE id_sarana = ?";
       db.query(query, [id], (err, result) => {
         if (err) {
           console.error('Error deleting data:', err);
@@ -193,6 +257,7 @@ app.delete('/backend/:id', (req, res) => {
     }
   });
 });
+
 
 // Server listen
 const PORT = 3001;

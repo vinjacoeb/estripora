@@ -14,26 +14,28 @@ function SignUpForm() {
 	} = useForm();
 
 	const submitForm = async (formData) => {
-		try {
-		  // Call API to register user
-		  const response = await axios.post("http://localhost:3001/api/auth/sign-up", formData);
-		  alert(response.data.message); // Show success message
-		  navigate("/sign-in"); // Redirect to login page
-		} catch (err) {
-		  // Handle API errors
-		  if (err.response && err.response.data.message) {
-			// Display the specific error message returned from the backend
-			alert(err.response.data.message);
-		  } else if (err.request) {
-			// If no response is received (e.g., network error)
-			alert("Network error: Unable to reach the server.");
-		  } else {
-			// Catch any other unexpected errors
-			alert("An unexpected error occurred. Please try again.");
-		  }
+		// Check if passwords match
+		if (formData.password !== formData.confirmPassword) {
+			setError("confirmPassword", { message: "Passwords do not match." });
+			return;
 		}
-	  };
-	  
+
+		try {
+			// Call API to register user
+			const response = await axios.post("http://localhost:3001/api/auth/sign-up", formData);
+			alert(response.data.message); // Show success message
+			navigate("/sign-in"); // Redirect to login page
+		} catch (err) {
+			// Handle API errors
+			if (err.response && err.response.data.message) {
+				alert(err.response.data.message);
+			} else if (err.request) {
+				alert("Network error: Unable to reach the server.");
+			} else {
+				alert("An unexpected error occurred. Please try again.");
+			}
+		}
+	};
 
 	return (
 		<div className="section aximo-section-padding">
@@ -58,7 +60,7 @@ function SignUpForm() {
 									name="user"
 									id="user"
 									placeholder="Adam Smith"
-									aria-invalid={errors.name ? "true" : "false"}
+									aria-invalid={errors.user ? "true" : "false"}
 								/>
 							</Field>
 						</div>
@@ -100,6 +102,51 @@ function SignUpForm() {
 								/>
 							</Field>
 						</div>
+
+						<div className="aximo-account-field">
+							<Field label="Confirm Password" error={errors.confirmPassword}>
+								<input
+									{...register("confirmPassword", { required: "Please confirm your password." })}
+									type="password"
+									name="confirmPassword"
+									id="confirmPassword"
+									placeholder="Confirm password"
+									aria-invalid={errors.confirmPassword ? "true" : "false"}
+								/>
+							</Field>
+						</div>
+
+						<div className="aximo-account-field">
+							<Field label="Enter NIK" error={errors.nik}>
+								<input
+									{...register("nik", { required: "NIK is required." })}
+									type="text"
+									name="nik"
+									id="nik"
+									placeholder="Enter NIK"
+									aria-invalid={errors.nik ? "true" : "false"}
+								/>
+							</Field>
+						</div>
+
+						<div className="aximo-account-field">
+							<Field label="Enter Phone Number" error={errors.no_tlp}>
+								<input
+									{...register("no_tlp", { required: "Phone number is required." })}
+									type="text"
+									name="no_tlp"
+									id="no_tlp"
+									placeholder="Enter phone number"
+									aria-invalid={errors.no_tlp ? "true" : "false"}
+								/>
+							</Field>
+						</div>
+
+						<input
+							type="hidden"
+							{...register("role")}
+							value="User" // Default value
+						/>
 
 						<button id="aximo-account-btn" type="submit">
 							Create account

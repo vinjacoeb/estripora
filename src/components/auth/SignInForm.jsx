@@ -16,42 +16,45 @@ function SignInForm() {
   // Function to handle form submission
 // Inside your SignInForm submitForm function
 const submitForm = async (formData) => {
-	console.log("Submitted Form Data = ", formData);
-	setIsLoading(true);
-  
-	try {
-	  const response = await fetch("http://localhost:3001/api/auth/sign-in", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-		  email: formData.email,
-		  password: formData.password,
-		}),
-	  });
-  
-	  const data = await response.json();
-  
-	  if (response.ok) {
-		// Store the token and userName (or any other user info) in localStorage
-		localStorage.setItem("token", data.token);
-		localStorage.setItem("userName", data.userName);
-    localStorage.setItem("id", data.id); // Make sure your API returns this data
-  
-		if (data.status === 1) {
-		  navigate("/");  // Redirect to home if status is 1
-		} else if (data.status === 2) {
-		  navigate("/dashboard");  // Redirect to dashboard if status is 2
-		}
-	  } else {
-		alert(data.error || "Login failed. Please try again.");
-	  }
-	} catch (error) {
-	  console.error("Error during login:", error);
-	  alert("An error occurred. Please try again.");
-	} finally {
-	  setIsLoading(false);
-	}
-  };
+  console.log("Submitted Form Data = ", formData);
+  setIsLoading(true);
+
+  try {
+    const response = await fetch("http://localhost:3001/api/auth/sign-in", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Simpan token, nama pengguna, dan peran di localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userName", data.userName);
+      localStorage.setItem("id", data.id);
+      localStorage.setItem("role", data.role);
+
+      // Arahkan berdasarkan peran pengguna
+      if (data.role === "User") {
+        navigate("/"); // Redirect ke home jika peran adalah User
+      } else if (data.role === "Admin") {
+        navigate("/dashboard"); // Redirect ke dashboard jika peran adalah Admin
+      }
+    } else {
+      alert(data.error || "Login failed. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error during login:", error);
+    alert("An error occurred. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   
 
   return (

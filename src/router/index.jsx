@@ -52,6 +52,9 @@ import Adminadmin from "../page/admin/Admin.jsx";
 import AdminadminEdit from "../page/admin/AdminEdit.jsx";
 import AdminadminTambah from "../page/admin/AdminTambah.jsx";
 import AdminUser from "../page/admin/User.jsx";
+import AdminKategori from "../page/admin/Kategori.jsx";
+import AdminKategoriTambah from "../page/admin/KategoriTambah.jsx";
+import AdminKategoriEdit from "../page/admin/KategoriEdit.jsx";
 
 export const router = createBrowserRouter([
 	{
@@ -282,6 +285,18 @@ export const router = createBrowserRouter([
 					{
 						path: "/admin-user",
 						element: <AdminUser />, // Dashboard component
+					},
+					{
+						path: "/admin-kategori",
+						element: <AdminKategori />, // Dashboard component
+					},
+					{
+						path: "/admin-kategori/add",
+						element: <AdminKategoriTambah />, // Dashboard component
+					},
+					{
+						path: "/admin-kategori/edit/:id",
+						element: <AdminKategoriEdit />, // Dashboard component
 					},
 					{
 						path: "*",

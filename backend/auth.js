@@ -13,7 +13,7 @@ const db = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'disporas_web',
+  database: 'estripora',
   connectionLimit: 10,
 });
 
@@ -33,79 +33,105 @@ const queryDB = (query, params) => {
 
 // Sign-up Route
 router.post('/sign-up', async (req, res) => {
-    console.log('Received request:', req.body);  // Log incoming data
-    const { user, email, password } = req.body;
+  console.log('Received request:', req.body); // Log incoming data
+  const { user, email, password, nik, no_tlp } = req.body;
 
-    // Validate required fields
-    if (!user || !email || !password) {
+  // Validate required fields
+  if (!user || !email || !password || !nik || !no_tlp) {
       console.log('Missing fields');
       return res.status(400).json({ message: 'All fields are required' });
-    }
+  }
 
-    // Optional: Validate email format
-    if (!validator.isEmail(email)) {
+  // Optional: Validate email format
+  if (!validator.isEmail(email)) {
       return res.status(400).json({ message: 'Invalid email format' });
-    }
+  }
 
-    try {
+  try {
       // Check if email already exists
-      const emailCheckQuery = 'SELECT * FROM webdis_user WHERE email = ?';
+      const emailCheckQuery = 'SELECT * FROM user WHERE email = ?';
       const emailCheckResult = await queryDB(emailCheckQuery, [email]);
 
       if (emailCheckResult.length > 0) {
-        return res.status(400).json({ message: 'Email already in use' });
+          return res.status(400).json({ message: 'Email already in use' });
+      }
+
+      // Generate new id_user
+      const idQuery = 'SELECT id_user FROM user ORDER BY id_user DESC LIMIT 1';
+      const lastIdResult = await queryDB(idQuery);
+      let newId = 'USR-001';
+
+      if (lastIdResult.length > 0) {
+          const lastId = lastIdResult[0].id_user;
+          const numericPart = parseInt(lastId.split('-')[1], 10);
+          const nextNumericPart = numericPart + 1;
+          newId = `USR-${String(nextNumericPart).padStart(3, '0')}`;
       }
 
       // Hash the password before saving it
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Insert user into the database, including status with default value 1
-      const query = 'INSERT INTO webdis_user (user, name, email, password, status, about) VALUES (?, ?, ?, ?, ?, ?)';
-      await queryDB(query, [user, user, email, hashedPassword, 1, "none"]);
+      // Insert user into the database
+      const query =
+          'INSERT INTO user (id_user, user, email, password, role, nik, no_tlp) VALUES (?, ?, ?, ?, ?, ?, ?)';
+      await queryDB(query, [newId, user, email, hashedPassword, 'User', nik, no_tlp]);
 
-      res.status(201).json({ message: 'User registered successfully' });
-    } catch (error) {
+      res.status(201).json({ message: 'User registered successfully', id_user: newId });
+  } catch (error) {
       console.error('Error during sign-up:', error);
       return res.status(500).json({ message: 'An error occurred. Please try again.' });
-    }
+  }
 });
 
 // Sign-in Route
 router.post('/sign-in', async (req, res) => {
   const { email, password } = req.body;
 
+  // Validasi input
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required.' });
   }
 
   try {
-    // Query to find the user by email
-    const query = 'SELECT * FROM webdis_user WHERE email = ?';
+    // Query untuk mencari user berdasarkan email
+    const query = 'SELECT * FROM user WHERE email = ?';
     const result = await queryDB(query, [email]);
 
-    // If no user found with the given email
+    // Jika user tidak ditemukan
     if (result.length === 0) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
     const user = result[0];
 
-    // Check if the password is correct
+    // Periksa kecocokan password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
-    // Create a JWT token for the user
-    const token = jwt.sign({ id: user.id, user: user.user }, secretKey, { expiresIn: '1h' });
+    // Buat token JWT
+    const token = jwt.sign({ id: user.id_user, user: user.user, role: user.role }, secretKey, { expiresIn: '1h' });
 
-    // Check the user's status and respond accordingly
-    if (user.status === 1) {
-      return res.status(200).json({ message: 'Login successful. Redirecting to home page.', token, status: 1, userName: user.user, id: user.id });
-    } else if (user.status === 2) {
-      return res.status(200).json({ message: 'Login successful. Redirecting to dashboard.', token, status: 2, userName: user.user, id: user.id });
+    // Respon berdasarkan role pengguna
+    if (user.role === 'Admin') {
+      return res.status(200).json({
+        message: 'Login successful. Redirecting to admin dashboard.',
+        token,
+        role: 'Admin',
+        userName: user.user,
+        id: user.id_user,
+      });
+    } else if (user.role === 'User') {
+      return res.status(200).json({
+        message: 'Login successful. Redirecting to user dashboard.',
+        token,
+        role: 'User',
+        userName: user.user,
+        id: user.id_user,
+      });
     } else {
-      return res.status(403).json({ error: 'User status is not valid.' });
+      return res.status(403).json({ error: 'Invalid user role.' });
     }
   } catch (err) {
     console.error('Error during login:', err);
@@ -175,22 +201,27 @@ const verifyToken = (req, res, next) => {
 
 // Status Route
 router.get('/status', verifyToken, async (req, res) => {
-    try {
-      const userId = req.userId;
-      const query = 'SELECT status FROM webdis_user WHERE id = ?';
-      const result = await queryDB(query, [userId]);
+  try {
+    const userId = req.userId;
 
-      if (result.length === 0) {
-        return res.status(404).json({ error: 'User not found.' });
-      }
+    // Query untuk mengambil role pengguna berdasarkan id_user
+    const query = 'SELECT role FROM user WHERE id_user = ?';
+    const result = await queryDB(query, [userId]);
 
-      const status = result[0].status;
-      res.status(200).json({ status });
-    } catch (err) {
-      console.error('Error fetching user status:', err);
-      res.status(500).json({ error: 'An error occurred while fetching user status.' });
+    // Jika pengguna tidak ditemukan
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'User not found.' });
     }
+
+    // Ambil nilai role dari hasil query
+    const role = result[0].role;
+    res.status(200).json({ role });
+  } catch (err) {
+    console.error('Error fetching user role:', err);
+    res.status(500).json({ error: 'An error occurred while fetching user role.' });
+  }
 });
+
 
 
 module.exports = router;

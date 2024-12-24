@@ -8,7 +8,7 @@ const db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "",
-  database: "disporas_web"
+  database: "estripora"
 });
 
 function verifyToken(req, res, next) {
@@ -45,31 +45,33 @@ const queryDB = (query, params) => {
 router.get('/user', verifyToken, async (req, res) => {
   try {
     const userId = req.userId;
-    console.log('Received User ID:', userId);
-
     if (!userId) {
       return res.status(400).json({ message: 'User ID is required' });
     }
 
-    const query = 'SELECT id, name, email FROM webdis_user WHERE id = ?';
+    // Query untuk mengambil data pengguna berdasarkan id_user
+    const query = 'SELECT id_user, user, email FROM user WHERE id_user = ?';
     const result = await queryDB(query, [userId]);
 
+    // Periksa apakah data pengguna ditemukan
     if (result.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Ambil data pengguna
     const user = result[0];
-    console.log('User data:', user);
 
+    // Kembalikan data pengguna
     res.status(200).json({
-      id: user.id,
-      name: user.name,
+      id_user: user.id_user,
+      user: user.user,
       email: user.email,
     });
   } catch (error) {
-    console.error('Error fetching user data:', error);
+    console.error('Error fetching user data:', error.message || error);
     res.status(500).json({ message: 'Failed to fetch user data' });
   }
 });
+
 
 module.exports = router;
