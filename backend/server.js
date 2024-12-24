@@ -12,6 +12,7 @@ const paymentRoutes = require('./payment');
 const pembayaranRoutes = require('./pembayaran');
 const adminheaderRoutes = require('./adminheader');
 const akunRoutes = require('./akun');
+const kategoriRoutes = require('./kategori');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/pembayaran', pembayaranRoutes);
 app.use('/api/adminheader', adminheaderRoutes);
 app.use('/api/akun', akunRoutes);
+app.use('/api/kategori', kategoriRoutes);
 
 // Database connection
 const db = mysql.createConnection({
