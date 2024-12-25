@@ -110,50 +110,37 @@ const JamOperasional = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {currentItems.map((jam, index) => (
-                            <tr key={jam.id}>
-                              <td className="text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                              
-                              <td>{jam.nama}</td>
-                              <td>{jam.sarana}</td>
-                              <td className="text-center">
-                              <div className="d-flex justify-content-center gap-2">
-                                <Link 
-                                  to={`/admin-JamOperasional/edit/${jam.id}`}
-                                  className="btn btn-primary p-1"
-                                  style={{ 
-                                    width: '28px', 
-                                    height: '28px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginRight: '4px',
-                                    fontSize: '0.7rem'
-                                  }}
-                                  title="Edit"
-                                >
-                                  <i className="fas fa-edit fa-sm"></i>
-                                </Link>
-                                <button 
-                                  onClick={() => handleDeleteClick(jam.id)}
-                                  className="btn btn-danger p-1"
-                                  style={{ 
-                                    width: '28px', 
-                                    height: '28px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '0.7rem'
-                                  }}
-                                  title="Delete"
-                                >
-                                  <i className="fas fa-trash fa-sm"></i>
-                                </button>
-                              </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
+  {currentItems.map((jam, index) => (
+    <tr key={jam.id_sarana}> {/* Gunakan id_sarana atau id_jam yang tepat */}
+      <td className="text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+      <td>{jam.nama_kategori}</td> {/* Menampilkan nama kategori */}
+      <td>{jam.nama_sarana}</td>  {/* Menampilkan nama sarana */}
+      <td className="text-center">
+        <div className="d-flex justify-content-center gap-2">
+        <Link 
+  to={`/admin-JamOperasional/edit/${jam.id_sarana}`}
+  className="btn btn-primary p-1"
+  style={{ 
+    width: '28px', 
+    height: '28px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: '4px',
+    fontSize: '0.7rem'
+  }}
+  title="Edit"
+>
+  <i className="fas fa-edit fa-sm"></i>
+</Link>
+
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
+
                       </table>
                     </div>
                   )}

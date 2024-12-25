@@ -55,6 +55,9 @@ import AdminUser from "../page/admin/User.jsx";
 import AdminKategori from "../page/admin/Kategori.jsx";
 import AdminKategoriTambah from "../page/admin/KategoriTambah.jsx";
 import AdminKategoriEdit from "../page/admin/KategoriEdit.jsx";
+import AdminFasilitas from "../page/admin/Fasilitas.jsx";
+import AdminFasilitasTambah from "../page/admin/FasilitasTambah.jsx";
+import AdminFasilitasEdit from "../page/admin/FasilitasEdit.jsx";
 
 export const router = createBrowserRouter([
 	{
@@ -297,6 +300,18 @@ export const router = createBrowserRouter([
 					{
 						path: "/admin-kategori/edit/:id",
 						element: <AdminKategoriEdit />, // Dashboard component
+					},
+					{
+						path: "/admin-fasilitas",
+						element: <AdminFasilitas />, // Dashboard component
+					},
+					{
+						path: "/admin-fasilitas/add",
+						element: <AdminFasilitasTambah />, // Dashboard component
+					},
+					{
+						path: "/admin-fasilitas/edit/:id",
+						element: <AdminFasilitasEdit />, // Dashboard component
 					},
 					{
 						path: "*",

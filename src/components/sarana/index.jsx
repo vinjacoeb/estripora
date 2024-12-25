@@ -7,9 +7,9 @@ function GridBlog() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetching data from the backend
+  // Fetch data from the backend
   useEffect(() => {
-    fetch("http://localhost:3001/api/sarana/depan") // Ensure your API URL matches your server
+    fetch("http://localhost:3001/api/sarana/depan")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch data");
@@ -19,12 +19,11 @@ function GridBlog() {
       .then((data) => {
         console.log(data); // Log the fetched data to check its structure
         const formattedData = data.map((item) => ({
-          id: item.id || crypto.randomUUID(), // Use item's ID if available, otherwise generate one
-          nama: item.nama,
-          kecamatan: item.kecamatan || "Unknown",
-          harga: item.harga || "Harga tidak tersedia",
-          gambar: item.gambar || "default-image-url",
-          sarana: item.sarana || "unknown",
+          id: item.id, // ID sarana
+          nama: item.nama, // Nama sarana
+          kategori: item.kategori, // Nama kategori
+          harga: item.harga || "Harga tidak tersedia", // Harga dengan fallback
+          gambar: item.gambar, // Path gambar
         }));
         setBlogs(formattedData);
         setLoading(false);
@@ -36,12 +35,12 @@ function GridBlog() {
       });
   }, []);
 
-  // Group blogs by nama
+  // Group blogs by kategori
   const groupedBlogs = blogs.reduce((acc, blog) => {
-    if (!acc[blog.nama]) {
-      acc[blog.nama] = [];
+    if (!acc[blog.kategori]) {
+      acc[blog.kategori] = [];
     }
-    acc[blog.nama].push(blog);
+    acc[blog.kategori].push(blog);
     return acc;
   }, {});
 
@@ -55,11 +54,11 @@ function GridBlog() {
           ) : error ? (
             <p>Error: {error}</p>
           ) : Object.keys(groupedBlogs).length > 0 ? (
-            Object.keys(groupedBlogs).map((nama) => (
-              <div key={nama}>
-                <h3 style={{ paddingBottom: "20px" }}>{nama}</h3> {/* Title for each nama category */}
+            Object.keys(groupedBlogs).map((kategori) => (
+              <div key={kategori}>
+                <h3 style={{ paddingBottom: "20px" }}>{kategori}</h3> {/* Title for each category */}
                 <div className="row" style={{ marginTop: "20px" }}>
-                  {groupedBlogs[nama].slice(0, 4).map((blog) => ( // Display up to 4 blogs per category
+                  {groupedBlogs[kategori].slice(0, 4).map((blog) => ( // Display up to 4 blogs per category
                     <GridBlogCard key={blog.id} blog={blog} /> // Pass blog object including id
                   ))}
                 </div>

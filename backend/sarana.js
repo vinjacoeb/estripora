@@ -8,7 +8,7 @@ const db = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'disporas_web',
+  database: 'estripora',
   connectionLimit: 10,
 });
 
@@ -25,23 +25,42 @@ const queryDB = (query, params) => {
 // Endpoint to fetch all sarana data
 router.get('/depan', async (req, res) => {
   try {
-    const query = 'SELECT * FROM webdis_data_estripora';
-    const data = await queryDB(query);
+    const query = `
+      SELECT 
+        sarana.id_sarana, 
+        sarana.nama_sarana, 
+        sarana.gambar, 
+        sarana.harga, 
+        kategori.nama_kategori
+      FROM 
+        sarana
+      JOIN 
+        kategori 
+      ON 
+        sarana.id_kategori = kategori.id_kategori
+    `;
 
-    // Format the data if needed (e.g., add default values or process images)
-    const formattedData = data.map(item => ({
-      id: item.id || crypto.randomUUID(), // Ensure each item has an ID
-      nama: item.nama,
-      kecamatan: item.kecamatan || 'Unknown',
-      harga: item.harga || 'Harga tidak tersedia',
-      gambar: `../backend/uploads/${item.gambar}`, // Append upload path for images
-      sarana: item.sarana || 'Uncategorized',
-    }));
+    // Eksekusi query menggunakan koneksi database
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Error fetching data:', err);
+        return res.status(500).json({ error: 'An error occurred while fetching sarana data.' });
+      }
 
-    res.status(200).json(formattedData);
+      // Format data sebelum dikirim ke frontend
+      const formattedData = results.map((item) => ({
+        id: item.id_sarana, // ID unik untuk setiap sarana
+        nama: item.nama_sarana, // Nama sarana
+        kategori: item.nama_kategori, // Nama kategori
+        harga: item.harga || 'Harga tidak tersedia', // Fallback untuk harga
+        gambar: `../backend/uploads/${item.gambar}`, // Gambar default jika tidak ada
+      }));
+
+      res.status(200).json(formattedData); // Kirim data terformat ke client
+    });
   } catch (error) {
-    console.error('Error fetching sarana data:', error);
-    res.status(500).json({ error: 'An error occurred while fetching sarana data.' });
+    console.error('Unexpected error:', error);
+    res.status(500).json({ error: 'An unexpected error occurred while processing the request.' });
   }
 });
 

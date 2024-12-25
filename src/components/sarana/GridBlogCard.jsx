@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-function GridBlogCard({ blog: { id, sarana, harga, gambar } }) {
+function GridBlogCard({ blog: { id, nama, harga, gambar, kategori } }) {
   // Format the price as Rupiah
   const formatRupiah = (number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -47,8 +47,8 @@ function GridBlogCard({ blog: { id, sarana, harga, gambar } }) {
           }}
         >
           <img
-            src={`/${gambar}`} // Assuming gambar is in the public folder
-            alt={sarana}
+            src={`/${gambar}`} // Assuming gambar is in the backend uploads folder
+            alt={nama}
             style={{
               width: "100%",
               height: "100%",
@@ -80,7 +80,7 @@ function GridBlogCard({ blog: { id, sarana, harga, gambar } }) {
                   color: "white",
                 }}
               >
-                {sarana}
+                {nama}
               </h3>
             </Link>
             <p
