@@ -22,11 +22,8 @@ const Admin = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      // Filter data hanya untuk status 2 (Admin)
-      const filteredData = response.data.filter(admin => admin.status === 2).map(admin => ({
-        ...admin,
-        status: 'Admin' // Ubah nilai status numerik menjadi kategori "Admin"
-      }));
+      // Filter data hanya untuk role "Admin"
+      const filteredData = response.data.filter(admin => admin.role === 'Admin');
       setAdminList(filteredData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -126,9 +123,9 @@ const Admin = () => {
             <div className="col-12">
               <div className="card">
                 <div className="card-body">
-                <div className="mb-3">
+                  <div className="mb-3">
                     <Link to="/admin-admin/add" className="btn btn-success">
-                      <i className="fas fa-plus mr-1"></i> Tambah Sarana
+                      <i className="fas fa-plus mr-1"></i> Tambah Admin
                     </Link>
                   </div>
                   {isLoading ? (
@@ -144,8 +141,10 @@ const Admin = () => {
                           <tr>
                             <th className="text-center" style={{ width: '5%' }}>No</th>
                             <th style={{ width: '35%' }}>Name</th>
-                            <th style={{ width: '40%' }}>Email</th>
-                            <th style={{ width: '10%' }}>Status</th>
+                            <th style={{ width: '30%' }}>Email</th>
+                            <th style={{ width: '30%' }}>NIK</th>
+                            <th style={{ width: '25%' }}>No Telepon</th>
+                            <th style={{ width: '10%' }}>Role</th>
                             <th className="text-center" style={{ width: '10%' }}>Action</th>
                           </tr>
                         </thead>
@@ -155,41 +154,43 @@ const Admin = () => {
                               <td className="text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                               <td>{admin.user}</td>
                               <td>{admin.email}</td>
-                              <td>{admin.status}</td>
+                              <td>{admin.nik}</td>
+                              <td>{admin.no_tlp}</td>
+                              <td>{admin.role}</td>
                               <td className="text-center">
-                              <div className="d-flex justify-content-center gap-2">
-                                <Link 
-                                  to={`/admin-admin/edit/${admin.id}`}
-                                  className="btn btn-primary p-1"
-                                  style={{ 
-                                    width: '28px', 
-                                    height: '28px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginRight: '4px',
-                                    fontSize: '0.7rem'
-                                  }}
-                                  title="Edit"
-                                >
-                                  <i className="fas fa-edit fa-sm"></i>
-                                </Link>
-                                <button 
-                                  onClick={() => handleDeleteClick(admin.id)}
-                                  className="btn btn-danger p-1"
-                                  style={{ 
-                                    width: '28px', 
-                                    height: '28px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '0.7rem'
-                                  }}
-                                  title="Delete"
-                                >
-                                  <i className="fas fa-trash fa-sm"></i>
-                                </button>
-                              </div>
+                                <div className="d-flex justify-content-center gap-2">
+                                  <Link 
+                                    to={`/admin-admin/edit/${admin.id_user}`}
+                                    className="btn btn-primary p-1"
+                                    style={{ 
+                                      width: '28px', 
+                                      height: '28px',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      marginRight: '4px',
+                                      fontSize: '0.7rem'
+                                    }}
+                                    title="Edit"
+                                  >
+                                    <i className="fas fa-edit fa-sm"></i>
+                                  </Link>
+                                  <button 
+                                    onClick={() => handleDeleteClick(admin.id_user)}
+                                    className="btn btn-danger p-1"
+                                    style={{ 
+                                      width: '28px', 
+                                      height: '28px',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontSize: '0.7rem'
+                                    }}
+                                    title="Delete"
+                                  >
+                                    <i className="fas fa-trash fa-sm"></i>
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))}

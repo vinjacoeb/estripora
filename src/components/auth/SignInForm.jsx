@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import StarImg from "../../assets/images/v1/star2.png";
 import Field from "../common/Field";
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 function SignInForm() {
   const {
@@ -13,49 +14,62 @@ function SignInForm() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false); // Loading state for button
 
-  // Function to handle form submission
-// Inside your SignInForm submitForm function
-const submitForm = async (formData) => {
-  console.log("Submitted Form Data = ", formData);
-  setIsLoading(true);
+  const submitForm = async (formData) => {
+    console.log("Submitted Form Data = ", formData);
+    setIsLoading(true);
 
-  try {
-    const response = await fetch("http://localhost:3001/api/auth/sign-in", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: formData.email,
-        password: formData.password,
-      }),
-    });
+    try {
+      const response = await fetch("http://localhost:3001/api/auth/sign-in", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (response.ok) {
-      // Simpan token, nama pengguna, dan peran di localStorage
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userName", data.userName);
-      localStorage.setItem("id", data.id);
-      localStorage.setItem("role", data.role);
+      if (response.ok) {
+        // Simpan token, nama pengguna, dan peran di localStorage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userName", data.userName);
+        localStorage.setItem("id", data.id);
+        localStorage.setItem("role", data.role);
 
-      // Arahkan berdasarkan peran pengguna
-      if (data.role === "User") {
-        navigate("/"); // Redirect ke home jika peran adalah User
-      } else if (data.role === "Admin") {
-        navigate("/dashboard"); // Redirect ke dashboard jika peran adalah Admin
+        Swal.fire({
+          title: "Success!",
+          text: "You have successfully logged in.",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          // Arahkan berdasarkan peran pengguna
+          if (data.role === "User") {
+            navigate("/"); // Redirect ke home jika peran adalah User
+          } else if (data.role === "Admin") {
+            navigate("/dashboard"); // Redirect ke dashboard jika peran adalah Admin
+          }
+        });
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: data.error || "Login failed. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
       }
-    } else {
-      alert(data.error || "Login failed. Please try again.");
+    } catch (error) {
+      console.error("Error during login:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "An error occurred. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Error during login:", error);
-    alert("An error occurred. Please try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-  
+  };
 
   return (
     <div className="section aximo-section-padding">

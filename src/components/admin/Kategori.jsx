@@ -3,23 +3,27 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const Sarana = () => {
-  const [saranaList, setSaranaList] = useState([]);
+const Kategori = () => {
+  const [kategoriList, setKategoriList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
   const itemsPerPage = 5;
 
   useEffect(() => {
-    fetchSaranaList();
+    fetchKategoriList();
   }, []);
 
-  const fetchSaranaList = () => {
-    axios.get('http://localhost:3001/backend')
+  const fetchKategoriList = () => {
+    axios.get('http://localhost:3001/api/kategori')
       .then((response) => {
-        setSaranaList(response.data);
+        setKategoriList(response.data);
       })
       .catch((error) => console.log(error));
+  };
+
+  // Function to truncate text to first 10 characters
+  const truncateText = (text, length = 10) => {
+    if (!text) return '-';
+    return text.length > length ? text.substring(0, length) + '...' : text;
   };
 
   // Function to handle delete confirmation
@@ -42,7 +46,7 @@ const Sarana = () => {
 
   // Function to execute delete
   const handleDelete = (id) => {
-    axios.delete(`http://localhost:3001/backend/${id}`)
+    axios.delete(`http://localhost:3001/api/kategori/${id}`)
       .then(() => {
         Swal.fire({
           title: 'Terhapus!',
@@ -51,7 +55,7 @@ const Sarana = () => {
           timer: 1500,
           showConfirmButton: false
         });
-        fetchSaranaList(); // Refresh the list after deletion
+        fetchKategoriList();
       })
       .catch((error) => {
         console.error('Error deleting data:', error);
@@ -65,32 +69,11 @@ const Sarana = () => {
       });
   };
 
-  // Updated function to show last 5 characters and file extension
-  const truncateImageName = (imageName) => {
-    if (!imageName) return '-';
-    
-    // Find the last dot to separate extension
-    const lastDotIndex = imageName.lastIndexOf('.');
-    if (lastDotIndex === -1) return imageName; // No extension found
-    
-    const extension = imageName.substring(lastDotIndex); // Get the extension with dot
-    const nameWithoutExtension = imageName.substring(0, lastDotIndex);
-    
-    // Get last 5 characters of the name (or whole name if less than 5)
-    const last5Chars = nameWithoutExtension.slice(-5);
-    
-    // If name is longer than 5 characters, add ellipsis
-    const prefix = nameWithoutExtension.length > 5 ? '...' : '';
-    
-    return prefix + last5Chars + extension;
-  };
-
-
   // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = saranaList.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(saranaList.length / itemsPerPage);
+  const currentItems = kategoriList.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(kategoriList.length / itemsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -103,12 +86,12 @@ const Sarana = () => {
             <div className="col-12">
               <div className="page-title-box d-flex align-items-center justify-content-between">
                 <h2 className="font-weight-bold text-primary" style={{ fontSize: '2rem' }}>
-                  Data Sarana
+                  Data Kategori
                 </h2>
                 <div className="page-title-right">
                   <ol className="breadcrumb m-0">
                     <li className="breadcrumb-item"><Link to="/">Home</Link></li>
-                    <li className="breadcrumb-item active">Data Sarana</li>
+                    <li className="breadcrumb-item active">Data Kategori</li>
                   </ol>
                 </div>
               </div>
@@ -122,7 +105,7 @@ const Sarana = () => {
                 <div className="card-body">
                   <div className="mb-3">
                     <Link to="/admin-kategori/add" className="btn btn-success">
-                      <i className="fas fa-plus mr-1"></i> Tambah Sarana
+                      <i className="fas fa-plus mr-1"></i> Tambah Kategori
                     </Link>
                   </div>
 
@@ -131,32 +114,29 @@ const Sarana = () => {
                       <thead className="thead-light">
                         <tr>
                           <th className="text-center align-middle" style={{ width: '5%' }}>No</th>
-                          <th className="align-middle" style={{ width: '20%' }}>Nama Sarana</th>
-                          <th className="align-middle" style={{ width: '20%' }}>Kategori</th>
-                          <th className="align-middle" style={{ width: '20%' }}>Deskripsi</th>
-                          <th className="text-center align-middle" style={{ width: '15%' }}>Gambar</th>
-                          <th className="text-center align-middle" style={{ width: '10%' }}>Harga</th>
+                          <th className="text-center align-middle" style={{ width: '15%' }}>ID Kategori</th>
+                          <th className="align-middle" style={{ width: '20%' }}>Nama Kategori</th>
+                          <th className="align-middle" style={{ width: '20%' }}>Alamat</th>
+                          <th className="align-middle" style={{ width: '15%' }}>Kecamatan</th>
+                          <th className="align-middle" style={{ width: '15%' }}>Lokasi</th>
                           <th className="text-center align-middle" style={{ width: '10%' }}>Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {currentItems.map((sarana, index) => (
-                          <tr key={sarana.id_sarana}>
+                        {currentItems.map((kategori, index) => (
+                          <tr key={kategori.id_kategori}>
                             <td className="text-center align-middle">
                               {(currentPage - 1) * itemsPerPage + index + 1}
                             </td>
-                            <td className="align-middle">{sarana.nama_sarana}</td>
-                            <td className="align-middle">{sarana.nama_kategori}</td>
-                            <td className="align-middle">{sarana.deskripsi}</td>
-                            <td className="align-middle">{sarana.gambar}</td>
-
-                            <td className="text-right align-middle">
-                              Rp {sarana.harga.toLocaleString('id-ID')}
-                            </td>
+                            <td className="text-center align-middle">{kategori.id_kategori}</td>
+                            <td className="align-middle">{kategori.nama_kategori}</td>
+                            <td className="align-middle">{truncateText(kategori.alamat)}</td>
+                            <td className="align-middle">{kategori.kecamatan}</td>
+                            <td className="align-middle">{truncateText(kategori.lokasi)}</td>
                             <td className="text-center align-middle">
                               <div className="d-flex justify-content-center gap-2">
                                 <Link 
-                                  to={`/admin-kategori/edit/${sarana.id_sarana}`}
+                                  to={`/admin-kategori/edit/${kategori.id_kategori}`}
                                   className="btn btn-primary p-1"
                                   style={{ 
                                     width: '28px', 
@@ -172,7 +152,7 @@ const Sarana = () => {
                                   <i className="fas fa-edit fa-sm"></i>
                                 </Link>
                                 <button 
-                                  onClick={() => handleDeleteClick(sarana.id_sarana)}
+                                  onClick={() => handleDeleteClick(kategori.id_kategori)}
                                   className="btn btn-danger p-1"
                                   style={{ 
                                     width: '28px', 
@@ -242,4 +222,4 @@ const Sarana = () => {
   );
 };
 
-export default Sarana;
+export default Kategori;

@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 import StarImg from "../../assets/images/v1/star2.png";
 import Field from "../common/Field";
 
@@ -23,16 +24,37 @@ function SignUpForm() {
 		try {
 			// Call API to register user
 			const response = await axios.post("http://localhost:3001/api/auth/sign-up", formData);
-			alert(response.data.message); // Show success message
-			navigate("/sign-in"); // Redirect to login page
+			Swal.fire({
+				title: "Success!",
+				text: "Account has been successfully created.",
+				icon: "success",
+				confirmButtonText: "OK",
+			}).then(() => {
+				navigate("/sign-in"); // Redirect to login page
+			});
 		} catch (err) {
 			// Handle API errors
 			if (err.response && err.response.data.message) {
-				alert(err.response.data.message);
+				Swal.fire({
+					title: "Error!",
+					text: err.response.data.message,
+					icon: "error",
+					confirmButtonText: "OK",
+				});
 			} else if (err.request) {
-				alert("Network error: Unable to reach the server.");
+				Swal.fire({
+					title: "Error!",
+					text: "Network error: Unable to reach the server.",
+					icon: "error",
+					confirmButtonText: "OK",
+				});
 			} else {
-				alert("An unexpected error occurred. Please try again.");
+				Swal.fire({
+					title: "Error!",
+					text: "An unexpected error occurred. Please try again.",
+					icon: "error",
+					confirmButtonText: "OK",
+				});
 			}
 		}
 	};
@@ -117,30 +139,48 @@ function SignUpForm() {
 						</div>
 
 						<div className="aximo-account-field">
-							<Field label="Enter NIK" error={errors.nik}>
-								<input
-									{...register("nik", { required: "NIK is required." })}
-									type="text"
-									name="nik"
-									id="nik"
-									placeholder="Enter NIK"
-									aria-invalid={errors.nik ? "true" : "false"}
-								/>
-							</Field>
-						</div>
+                            <Field label="Enter NIK" error={errors.nik}>
+                                <div>
+                                    <input
+                                        {...register("nik", {
+                                            required: "NIK is required.",
+                                            pattern: {
+                                                value: /^[0-9]{16}$/,
+                                                message: "NIK must be 16 digits long.",
+                                            },
+                                        })}
+                                        type="text"
+                                        name="nik"
+                                        id="nik"
+                                        placeholder="Enter NIK"
+                                        aria-invalid={errors.nik ? "true" : "false"}
+                                    />
+                                    <small className="form-text">NIK must be exactly 16 digits long.</small>
+                                </div>
+                            </Field>
+                        </div>
 
 						<div className="aximo-account-field">
-							<Field label="Enter Phone Number" error={errors.no_tlp}>
-								<input
-									{...register("no_tlp", { required: "Phone number is required." })}
-									type="text"
-									name="no_tlp"
-									id="no_tlp"
-									placeholder="Enter phone number"
-									aria-invalid={errors.no_tlp ? "true" : "false"}
-								/>
-							</Field>
-						</div>
+                            <Field label="Enter Phone Number" error={errors.no_tlp}>
+                                <div>
+                                    <input
+                                        {...register("no_tlp", {
+                                            required: "Phone number is required.",
+                                            pattern: {
+                                                value: /^[0-9]{11,13}$/,
+                                                message: "Phone number must be between 11 and 13 digits long.",
+                                            },
+                                        })}
+                                        type="text"
+                                        name="no_tlp"
+                                        id="no_tlp"
+                                        placeholder="Enter phone number"
+                                        aria-invalid={errors.no_tlp ? "true" : "false"}
+                                    />
+                                    <small className="form-text">Phone number must be between 11 and 13 digits long.</small>
+                                </div>
+                            </Field>
+                        </div>
 
 						<input
 							type="hidden"

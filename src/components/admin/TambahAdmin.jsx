@@ -9,7 +9,9 @@ const TambahAdmin = () => {
     user: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    nik: '',
+    no_tlp: ''
   });
 
   // Reset form setiap kali halaman dirender
@@ -18,12 +20,25 @@ const TambahAdmin = () => {
       user: '',
       email: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      nik: '',
+      no_tlp: ''
     });
-  }, []); // [] memastikan ini hanya dijalankan saat komponen dimuat pertama kali
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Validasi input NIK hanya angka maksimal 16 digit
+    if (name === 'nik' && (!/^[0-9]*$/.test(value) || value.length > 16)) {
+      return;
+    }
+
+    // Validasi input nomor telepon hanya angka
+    if (name === 'no_tlp' && !/^[0-9]*$/.test(value)) {
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value
@@ -48,7 +63,9 @@ const TambahAdmin = () => {
       user: formData.user,
       email: formData.email,
       password: formData.password,
-      status: 2
+      role: 'Admin',
+      nik: formData.nik,
+      no_tlp: formData.no_tlp
     };
 
     try {
@@ -72,9 +89,13 @@ const TambahAdmin = () => {
         user: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        nik: '',
+        no_tlp: ''
       });
 
+    // Changed navigation path to admin-kategori
+    navigate('/admin-admin');
     } catch (error) {
       console.error('Error menambah admin:', error);
       const errorMessage = error.response?.data?.message || 'Gagal menambah admin. Silakan coba lagi.';
@@ -162,10 +183,41 @@ const TambahAdmin = () => {
                           required
                         />
                       </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">NIK</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="nik"
+                          value={formData.nik}
+                          onChange={handleInputChange}
+                          minLength={16}
+                          maxLength={16}
+                          required
+                        />
+                        <small className="form-text text-muted">
+                          Masukkan 16 digit angka NIK Anda.
+                        </small>
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">No Telepon</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="no_tlp"
+                          value={formData.no_tlp}
+                          onChange={handleInputChange}
+                          minLength={11}
+                          maxLength={13}
+                          required
+                        />
+                      </div>
                     </div>
 
                     <div className="d-flex justify-content-end gap-2">
-                      <Link to="/admin-list" className="btn btn-secondary">
+                      <Link to="/admin-admin" className="btn btn-secondary">
                         Kembali
                       </Link>
                       <button type="submit" className="btn btn-primary">

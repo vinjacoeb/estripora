@@ -22,12 +22,9 @@ const User = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      // Mengubah status numerik menjadi teks "User"
-      const formattedData = response.data.map(user => ({
-        ...user,
-        status: 'User'
-      }));
-      setUserList(formattedData || []);
+      // Filter data untuk hanya menampilkan user dengan role "User"
+      const filteredData = response.data.filter(user => user.role === 'User');
+      setUserList(filteredData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
       if (error.response && error.response.data.message === 'Invalid token.') {
@@ -131,6 +128,8 @@ const User = () => {
                             <th className="text-center" style={{ width: '5%' }}>No</th>
                             <th style={{ width: '35%' }}>Name</th>
                             <th style={{ width: '40%' }}>Email</th>
+                            <th style={{ width: '30%' }}>NIK</th>
+                            <th style={{ width: '25%' }}>No Telepon</th>
                             <th style={{ width: '10%' }}>Status</th>
                             <th className="text-center" style={{ width: '10%' }}>Action</th>
                           </tr>
@@ -141,10 +140,12 @@ const User = () => {
                               <td className="text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                               <td>{user.user}</td>
                               <td>{user.email}</td>
-                              <td>{user.status}</td>
+                              <td>{user.nik}</td>
+                              <td>{user.no_tlp}</td>
+                              <td>{user.role}</td>
                               <td className="text-center">
                                 <button 
-                                  onClick={() => handleDeleteClick(user.id)}
+                                  onClick={() => handleDeleteClick(user.id_user)}
                                   className="btn btn-danger p-1"
                                   style={{ 
                                     width: '28px', 
