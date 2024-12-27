@@ -59,12 +59,11 @@ function OperationalHours({ jamOperasional }) {
   );
 }
 
-// Booking Section Component
-const BookingSection = ({ jamOperasional, harga, sarana }) => {
+const BookingSection = ({ jamOperasional, harga, kategori }) => {
   const [selectedDates, setSelectedDates] = useState([]);
   const [selectedTimes, setSelectedTimes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
-  const [user, setUser] = useState({ id: "", name: "", email: "" });
+  const [user, setUser] = useState({ id_user: "", user: "", email: "" });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -80,7 +79,7 @@ const BookingSection = ({ jamOperasional, harga, sarana }) => {
         .then((res) => res.json())
         .then((data) => {
           console.log("User data fetched:", data);
-          if (data.id && data.name && data.email) {
+          if (data.id_user && data.user && data.email) {
             setUser(data); // Set state user jika data lengkap
           } else {
             console.error("Data pengguna tidak lengkap:", data);
@@ -102,46 +101,108 @@ const BookingSection = ({ jamOperasional, harga, sarana }) => {
   }, [selectedDates, selectedTimes]);
 
   const calculateTotalPrice = () => {
-    if (selectedDates.length === 0) {
+    if (selectedDates.length === 0 || !harga) {
       setTotalPrice(0);
       return;
     }
-
+  
     let total = 0;
     selectedDates.forEach((date) => {
       const dateString = format(date, "yyyy-MM-dd");
       const selectedTimeForDate = selectedTimes[dateString] || [];
       total += harga * selectedTimeForDate.length;
     });
-
+  
     setTotalPrice(total);
   };
+  
 
-  const handleTimeClick = (time, date) => {
-    const dateString = format(date, "yyyy-MM-dd");
-    const timesForThisDate = selectedTimes[dateString] || [];
+// Fungsi untuk mengecek apakah waktu sudah disewa
+const checkIfTimeBooked = async (date, time) => {
+  const dateString = format(date, "yyyy-MM-dd");
 
-    const updatedTimes = timesForThisDate.includes(time)
-      ? timesForThisDate.filter((t) => t !== time)
-      : [...timesForThisDate, time];
+  try {
+    // Fetch data dari backend
+    const response = await fetch(
+      `http://localhost:3001/api/payment/check?date=${dateString}&time=${time}`
+    );
+    const data = await response.json();
 
-    setSelectedTimes((prevSelectedTimes) => ({
-      ...prevSelectedTimes,
-      [dateString]: updatedTimes,
-    }));
-  };
+    // Return status waktu
+    return data.isBooked;
+  } catch (error) {
+    console.error("Error checking booking:", error);
+    return false;
+  }
+};
 
-  const handleDateClick = (date) => {
-    const dateString = format(date, "yyyy-MM-dd");
+const checkIfDateFullyBooked = async (date) => {
+  const dateString = format(date, "yyyy-MM-dd");
 
-    if (selectedDates.find((d) => format(d, "yyyy-MM-dd") === dateString)) {
-      setSelectedDates((prevSelectedDates) =>
-        prevSelectedDates.filter((d) => format(d, "yyyy-MM-dd") !== dateString)
+  try {
+      const response = await fetch(
+          `http://localhost:3001/api/payment/check?date=${dateString}`
       );
-    } else {
-      setSelectedDates((prevSelectedDates) => [...prevSelectedDates, date]);
-    }
-  };
+      const data = await response.json();
+
+      // Anggap penuh jika tidak ada waktu yang tersedia
+      return data.availableTimes.length === 0;
+  } catch (error) {
+      console.error("Error checking full date booking:", error);
+      return false;
+  }
+};
+
+
+
+
+
+// Handle klik waktu
+const handleTimeClick = async (time, date) => {
+  const dateString = format(date, "yyyy-MM-dd");
+
+  const isBooked = await checkIfTimeBooked(date, time);
+  if (isBooked) {
+    alert(`Waktu ${time} pada tanggal ${dateString} sudah disewa!`);
+    return;
+  }
+
+  const timesForThisDate = selectedTimes[dateString] || [];
+  const updatedTimes = timesForThisDate.includes(time)
+    ? timesForThisDate.filter((t) => t !== time)
+    : [...timesForThisDate, time];
+
+  setSelectedTimes((prevSelectedTimes) => ({
+    ...prevSelectedTimes,
+    [dateString]: updatedTimes,
+  }));
+};
+
+// Handle klik tanggal (untuk blok tanggal 1 hari)
+const handleDateClick = async (date) => {
+  const dateString = format(date, "yyyy-MM-dd");
+
+  const isFullyBooked = await checkIfDateFullyBooked(date);
+  if (isFullyBooked) {
+    alert(`Tanggal ${dateString} sudah penuh disewa.`);
+    return;
+  }
+
+  if (selectedDates.find((d) => format(d, "yyyy-MM-dd") === dateString)) {
+    setSelectedDates((prevSelectedDates) =>
+      prevSelectedDates.filter((d) => format(d, "yyyy-MM-dd") !== dateString)
+    );
+  } else {
+    setSelectedDates((prevSelectedDates) => [...prevSelectedDates, date]);
+  }
+};
+
+// Fungsi untuk menentukan apakah tanggal diblok di kalender
+const isDateBlocked = async (date) => {
+  return await checkIfDateFullyBooked(date);
+};
+
+
 
   const handleSelectAllTimes = (date, availableTimes) => {
     const dateString = format(date, "yyyy-MM-dd");
@@ -165,21 +226,20 @@ const BookingSection = ({ jamOperasional, harga, sarana }) => {
         gross_amount: totalPrice,
       },
       customer_details: {
-        id: user.id,
-        name: user.name,
+        id_user: user.id_user,
+        user: user.user,
         email: user.email,
       },
       item_details: selectedDates.map((date) => {
         const dateString = format(date, "yyyy-MM-dd");
         const times = selectedTimes[dateString] || [];
   
-        // Tentukan jam mulai dan jam selesai
         const jamMulai = times.length > 0 ? times[0] : "N/A";
         const jamSelesai = times.length > 0 ? times[times.length - 1] : "N/A";
   
         return {
           tanggal: `${dateString}`,
-          name: `${sarana}`,
+          name: kategori.nama_kategori,
           price: harga,
           quantity: times.length,
           start_time: jamMulai,
@@ -188,9 +248,8 @@ const BookingSection = ({ jamOperasional, harga, sarana }) => {
       }),
     };
   
-    console.log("Booking Data yang dikirim:", bookingData); // Verifikasi data
-  
     try {
+      // Step 1: Request payment token from backend
       const response = await fetch("http://localhost:3001/api/payment/bayar", {
         method: "POST",
         headers: {
@@ -204,11 +263,29 @@ const BookingSection = ({ jamOperasional, harga, sarana }) => {
         throw new Error("Gagal memproses transaksi.");
       }
   
-      // Panggil Midtrans Snap untuk memulai transaksi
+      // Step 2: Process payment via Midtrans Snap
       snap.pay(data.token, {
-        onSuccess: function (result) {
+        onSuccess: async (result) => {
           alert("Pembayaran berhasil!");
           console.log(result);
+  
+          // Step 3: Send confirmed booking data to backend
+          const saveResponse = await fetch("http://localhost:3001/api/payment/confirm", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...bookingData,
+              transaction_id: result.transaction_id,
+            }),
+          });
+  
+          if (!saveResponse.ok) {
+            throw new Error("Gagal menyimpan data booking.");
+          }
+  
+          alert("Data booking berhasil disimpan.");
         },
         onPending: function (result) {
           alert("Pembayaran masih pending.");
@@ -225,32 +302,36 @@ const BookingSection = ({ jamOperasional, harga, sarana }) => {
     }
   };
   
-
   
 
   return (
     <div className="booking-section" style={{ marginTop: "40px" }}>
       <h4>Pilih Tanggal Bermain</h4>
       <DatePicker
-        selected={null}
-        onChange={handleDateClick}
-        minDate={new Date()}
-        dateFormat="yyyy/MM/dd"
-        inline
-        highlightDates={selectedDates}
-        filterDate={(date) => {
-          const dayName = [
-            "Minggu",
-            "Senin",
-            "Selasa",
-            "Rabu",
-            "Kamis",
-            "Jumat",
-            "Sabtu",
-          ][date.getDay()];
-          return jamOperasional.some((jam) => jam.hari === dayName);
-        }}
-      />
+  selected={null}
+  onChange={handleDateClick}
+  minDate={new Date()} // Hanya tanggal mulai dari hari ini
+  dateFormat="yyyy/MM/dd"
+  inline
+  highlightDates={selectedDates} // Tanggal yang dipilih akan disorot
+  filterDate={(date) => {
+    const dayName = [
+      "Minggu",
+      "Senin",
+      "Selasa",
+      "Rabu",
+      "Kamis",
+      "Jumat",
+      "Sabtu",
+    ][date.getDay()]; // Mendapatkan nama hari dari tanggal
+    
+    // Periksa apakah tanggal memiliki jam operasional yang tersedia
+    const isOperationalDay = jamOperasional.some((jam) => jam.hari === dayName);
+    
+    return isOperationalDay; // Tampilkan hanya tanggal yang valid
+  }}
+/>
+
 
       {selectedDates.map((date, index) => {
         const dayName = [
@@ -327,22 +408,73 @@ const BookingSection = ({ jamOperasional, harga, sarana }) => {
   );
 };
 
+
 // Main Component
-function BlogDetails({ id, nama, sarana, gambar, harga, kecamatan, jam_operasional }) {
+function BlogDetails({ id, nama, kategori, gambar, harga, jam_operasional, fasilitas }) {
   return (
     <>
-      <LazyLoadImage
-        src={`/${gambar}`}
-        width={850}
-        height={400}
-        alt={nama}
-        effect="blur"
-      />
-      <h2>{nama} - {sarana}</h2>
-      <OperationalHours jamOperasional={jam_operasional} />
-      <BookingSection sarana={sarana} jamOperasional={jam_operasional} harga={harga} />
+      <div className="blog-header">
+        <LazyLoadImage
+          src={`/${gambar}`}
+          width={850}
+          height={400}
+          alt={nama}
+          effect="blur"
+          className="blog-image"
+        />
+      </div>
+
+      <div className="blog-info">
+        <h2 className="blog-title">
+          {nama} - {kategori && kategori.nama_kategori ? kategori.nama_kategori : "Kategori tidak tersedia"}
+        </h2>
+
+        <div className="blog-details">
+          <p><strong>Alamat:</strong> {kategori && kategori.alamat ? kategori.alamat : "Alamat tidak tersedia"}</p>
+          <p><strong>Kecamatan:</strong> {kategori && kategori.kecamatan ? kategori.kecamatan : "Kecamatan tidak tersedia"}</p>
+          <div className="blog-location">
+            <p><strong>Lokasi:</strong></p>
+            {kategori && kategori.lokasi ? (
+              <iframe 
+                src={kategori.lokasi}
+                width="100%" 
+                height="450" 
+                style={{ border: 'none', borderRadius: '8px' }} 
+                allowFullScreen=""
+                loading="lazy"
+                title="Lokasi Sarana"
+              ></iframe>
+            ) : (
+              <p>Lokasi tidak tersedia</p>
+            )}
+          </div>
+        </div>
+
+        <div className="blog-fasilitas">
+          <h4>Fasilitas:</h4>
+          <ul className="fasilitas-list">
+            {fasilitas && fasilitas.length > 0 ? (
+              fasilitas.map((item, index) => (
+                <li key={index} className="fasilitas-item">
+                  <strong>{item.nama_fasilitas}</strong> - {item.qty} unit, <em>Kondisi:</em> {item.kondisi}
+                </li>
+              ))
+            ) : (
+              <p>Fasilitas tidak tersedia</p>
+            )}
+          </ul>
+        </div>
+
+        {/* Menampilkan jam operasional */}
+        <OperationalHours jamOperasional={jam_operasional} />
+
+        {/* Menampilkan section booking */}
+        <BookingSection kategori={kategori} jamOperasional={jam_operasional} harga={harga} />
+      </div>
     </>
   );
 }
+
+
 
 export default BlogDetails;

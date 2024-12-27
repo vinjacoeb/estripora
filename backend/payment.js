@@ -10,7 +10,7 @@ const db = mysql.createConnection({
   host: "localhost",  // Sesuaikan dengan host database Anda
   user: "root",       // Sesuaikan dengan username database Anda
   password: "",       // Sesuaikan dengan password database Anda
-  database: "disporas_web" // Sesuaikan dengan nama database Anda
+  database: "estripora" // Sesuaikan dengan nama database Anda
 });
 
   function verifyToken(req, res, next) {
@@ -58,7 +58,7 @@ router.get('/user', verifyToken, async (req, res) => {
       return res.status(400).json({ message: 'User ID is required' });
     }
 
-    const query = 'SELECT id, name, email FROM webdis_user WHERE id = ?';
+    const query = 'SELECT id_user, user, email from user WHERE id_user = ?';
     const result = await queryDB(query, [userId]);
 
     if (result.length === 0) {
@@ -69,8 +69,8 @@ router.get('/user', verifyToken, async (req, res) => {
     console.log('User data:', user);  // Log user data from DB
 
     res.status(200).json({
-      id: user.id,
-      name: user.name,
+      id_user: user.id_user,
+      user: user.user,
       email: user.email,
     });
   } catch (error) {
@@ -95,7 +95,7 @@ router.post("/bayar", async (req, res) => {
   try {
     const { transaction_details, customer_details, item_details } = req.body;
 
-    if (!customer_details || !customer_details.id || !customer_details.name || !customer_details.email) {
+    if (!customer_details || !customer_details.id_user || !customer_details.user || !customer_details.email) {
       return res.status(400).json({ message: "Data pengguna tidak lengkap." });
     }
 
@@ -106,7 +106,7 @@ router.post("/bayar", async (req, res) => {
         gross_amount: transaction_details.gross_amount,  // Pastikan harga sesuai dengan yang dikirimkan
       },
       customer_details: {
-        name: customer_details.name,
+        user: customer_details.user,
         email: customer_details.email,
       },
       item_details: item_details,  // Gunakan item_details yang diterima dari frontend
@@ -124,16 +124,17 @@ router.post("/bayar", async (req, res) => {
       // Menyimpan data transaksi ke database
       item_details.forEach((item) => {
         const { tanggal, name: sarana, price, quantity, start_time, end_time } = item;
-        const status = 'Menunggu Pembayaran Diverifikasi';  // Default status
+        const status = 'Pending';  // Default status
 
         const query = `
-          INSERT INTO transactions (order_id, gross_amount, customer_name, customer_email, sarana, tanggal, price, quantity, start_time, end_time, status)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO transaksi (order_id, gross_amount,id_user, customer_name, customer_email, sarana, tanggal, price, quantity, start_time, end_time, status)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const values = [
           transactionData.transaction_details.order_id,
           transactionData.transaction_details.gross_amount,
-          customer_details.name,
+          customer_details.id_user,
+          customer_details.user,
           customer_details.email,
           sarana,
           tanggal,
@@ -164,6 +165,28 @@ router.post("/bayar", async (req, res) => {
   }
 });
 
+router.get('check', async (req, res) => {
+  const { date, sarana } = req.query;
+
+  try {
+      const query = `
+          SELECT jam_operasional.jam_mulai, jam_operasional.jam_selesai
+          FROM jam_operasional
+          LEFT JOIN transaksi
+          ON transaksi.tanggal = ? 
+          AND transaksi.start_time = jam_operasional.jam_mulai
+          AND transaksi.sarana = ?
+          AND transaksi.status = 'Berhasil' -- Hanya blokir jika status Berhasil
+          WHERE jam_operasional.hari = DAYNAME(?)
+          AND transaksi.id IS NULL;
+      `;
+      const [availableTimes] = await db.query(query, [date, sarana, date]);
+      res.json({ availableTimes });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching availability' });
+  }
+});
 
 
 

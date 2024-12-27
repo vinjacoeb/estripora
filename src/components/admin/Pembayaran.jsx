@@ -107,8 +107,6 @@ const Pembayaran = () => {
                           <th className="align-middle">Customer Email</th>
                           <th className="align-middle">Sarana</th>
                           <th className="align-middle">Tanggal</th>
-                          <th className="align-middle">Price</th>
-                          <th className="align-middle">Quantity</th>
                           <th className="align-middle">Start Time</th>
                           <th className="align-middle">End Time</th>
                           <th className="align-middle">Status</th>
@@ -127,8 +125,6 @@ const Pembayaran = () => {
                             <td className="align-middle">{transaction.customer_email}</td>
                             <td className="align-middle">{transaction.sarana}</td>
                             <td className="align-middle">{transaction.tanggal}</td>
-                            <td className="align-middle">Rp {transaction.price}</td>
-                            <td className="align-middle">{transaction.quantity}</td>
                             <td className="align-middle">{transaction.start_time}</td>
                             <td className="align-middle">{transaction.end_time}</td>
                             <td className="align-middle">{transaction.status}</td>

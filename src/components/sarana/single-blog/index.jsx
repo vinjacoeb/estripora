@@ -9,10 +9,10 @@ function SingleBlog() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:3001/api/sarana/detail/${id}`) // Using the ID from URL
+    fetch(`http://localhost:3001/api/sarana/detail/${id}`) // Menggunakan ID dari URL
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to fetch blog details");
+          throw new Error("Gagal mengambil detail sarana");
         }
         return response.json();
       })
@@ -32,7 +32,7 @@ function SingleBlog() {
         <div className="container">
           <div className="row">
             <div className="col-12">
-              <p>Loading blog details...</p>
+              <p>Memuat detail sarana...</p>
             </div>
           </div>
         </div>
@@ -60,17 +60,13 @@ function SingleBlog() {
         <div className="row">
           <div className="col-12 col-md-10 col-lg-8 mx-auto">
             <BlogDetails
-              nama={blog.nama || "Untitled Blog"}
-			        sarana={blog.sarana || "Untitled Blog"}
-              gambar={blog.gambar || "default-image.jpg"}
-              gambar1={blog.gambar1 || "default-image.jpg"}
-              gambar2={blog.gambar2 || "default-image.jpg"}
-              gambar3={blog.gambar3 || "default-image.jpg"}
-              harga={blog.harga || "Price not available"}
-              kecamatan={blog.kecamatan || "Location not available"}
-              deskripsi={blog.deskripsi || "Description not available"}
-              booking_time={blog.booking_time || "Not available"}
-              jam_operasional={blog.jam_operasional || []}
+              nama={blog && blog.nama_sarana ? blog.nama_sarana : "Nama tidak tersedia"}
+              gambar={blog && blog.gambar ? blog.gambar : "default-image.jpg"}
+              harga={blog && blog.harga ? blog.harga : "Harga tidak tersedia"}
+              deskripsi={blog && blog.deskripsi ? blog.deskripsi : "Deskripsi tidak tersedia"}
+              kategori={blog && blog.kategori ? blog.kategori : {}}
+              fasilitas={blog && blog.fasilitas ? blog.fasilitas : []}
+              jam_operasional={blog && blog.jam_operasional ? blog.jam_operasional : []}
             />
           </div>
         </div>
