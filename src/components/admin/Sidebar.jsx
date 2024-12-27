@@ -45,7 +45,7 @@ const Sidebar = () => {
                                         className="has-arrow waves-effect"
                                         onClick={() => setSaranaPrasaranaOpen(!isSaranaPrasaranaOpen)}
                                     >
-                                        <i className="mdi mdi-tools"></i>
+                                        <i className="mdi mdi-factory"></i>
                                         <span>Sarana Prasarana</span>
                                     </a>
                                     {isSaranaPrasaranaOpen && (
@@ -54,8 +54,8 @@ const Sidebar = () => {
                                             <li>
                                                 <Link to="/admin-sarana">Sarana</Link> {/* Use Link for navigation */}
                                             </li>
-                                            <li><Link to="/admin-jamOperasional">Jam Operasional</Link></li> {/* Placeholder */}
-                                            <li><Link to="#">Harga</Link></li> {/* Placeholder */}
+                                            <li><Link to="/admin-fasilitas">Fasilitas</Link></li>
+                                            <li><Link to="/admin-jamOperasional">Jam Operasional</Link></li>
                                         </ul>
                                     )}
                                 </li>
