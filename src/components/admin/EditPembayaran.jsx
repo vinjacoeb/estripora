@@ -102,7 +102,7 @@ const EditPembatalan = () => {
                           required
                         >
                           <option value="Pending">Pending</option>
-                          <option value="Lunas">Lunas</option>
+                          <option value="Berhasil">Berhasil</option>
                           <option value="Dibatalkan">Dibatalkan</option>
                         </select>
                       </div>

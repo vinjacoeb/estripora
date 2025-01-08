@@ -8,10 +8,6 @@ export const routes = [
 		href: "sarana",
 	},
 	{
-		title: "Detail Pemesanan",
-		href: "detail",
-	},
-	{
 		title: "Cetak Bukti Pembayaran",
 		href: "cetak",
 	},

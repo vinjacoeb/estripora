@@ -30,7 +30,9 @@ router.get('/pembayaran', async (req, res) => {
   try {
     const query = `
       SELECT 
+        id_transaksi,
         order_id,
+        gross_amount,
         customer_name,
         customer_email,
         sarana,
@@ -40,7 +42,7 @@ router.get('/pembayaran', async (req, res) => {
         GROUP_CONCAT(DISTINCT end_time ORDER BY end_time ASC) AS end_time,
         status
       FROM transaksi
-      GROUP BY order_id, customer_name, customer_email, sarana, status
+      GROUP BY id_transaksi,order_id, gross_amount,customer_name, customer_email, sarana, status
     `;
     
     const data = await queryDB(query);
@@ -62,10 +64,10 @@ router.get('/pembayaran', async (req, res) => {
 
 
 // Endpoint to get payment by ID
-router.get('/pembayar/:id', async (req, res) => {
+router.get('/pembayaran/:id', async (req, res) => {
   try {
     const { id } = req.params; // Extract the id from the URL parameter
-    const query = `SELECT * FROM transactions WHERE id = ?`; // Use the id to query the database
+    const query = `SELECT id_transaksi,status FROM transaksi WHERE id_transaksi = ?`; // Use the id to query the database
     const data = await queryDB(query, [id]); // Query the database using the id
 
     if (data.length === 0) {
@@ -88,9 +90,9 @@ router.put('/pembayaran/:id', async (req, res) => {
     const { status } = req.body;  // Only updating the 'status' field
 
     const query = `
-      UPDATE transactions
+      UPDATE transaksi
       SET status = ?
-      WHERE id = ?
+      WHERE id_transaksi = ?
     `;
 
     const result = await queryDB(query, [status, id]);
@@ -107,25 +109,6 @@ router.put('/pembayaran/:id', async (req, res) => {
 });
 
 
-// Endpoint to delete payment by ID
-router.delete('/pembayaran/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const query = `DELETE FROM transactions WHERE id = ?`;
-
-    const result = await queryDB(query, [id]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: 'Data pembayaran tidak ditemukan' });
-    }
-
-    res.status(200).json({ success: true, message: 'Data pembayaran berhasil dihapus' });
-  } catch (error) {
-    console.error('Error deleting payment data:', error);
-    res.status(500).json({ success: false, message: 'An error occurred while deleting payment data.' });
-  }
-});
 // Export the router
 module.exports = router;
 

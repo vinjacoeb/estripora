@@ -131,7 +131,7 @@ const Pembayaran = () => {
                             <td className="text-center align-middle">
                             <div className="d-flex justify-content-center gap-2">
                                 <Link 
-                                  to={`/admin-pembayaran/edit/${transaction.id}`}
+                                  to={`/admin-pembayaran/edit/${transaction.id_transaksi}`}
                                   className="btn btn-primary p-1"
                                   style={{ 
                                     width: '28px', 
@@ -147,7 +147,7 @@ const Pembayaran = () => {
                                   <i className="fas fa-edit fa-sm"></i>
                                 </Link>
                                 <button 
-                                  onClick={() => handleDeleteClick(transaction.id)}
+                                  onClick={() => handleDeleteClick(transaction.id_transaksi)}
                                   className="btn btn-danger p-1"
                                   style={{ 
                                     width: '28px', 

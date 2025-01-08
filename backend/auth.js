@@ -171,7 +171,7 @@ router.post('/reset-password', async (req, res) => {
 
       // Hash the new password and update it in the database
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-      const updateQuery = 'UPDATE webdis_user SET password = ? WHERE email = ?';
+      const updateQuery = 'UPDATE user SET password = ? WHERE email = ?';
       await queryDB(updateQuery, [hashedPassword, email]);
 
       res.status(200).json({ message: 'Password reset successful.' });
