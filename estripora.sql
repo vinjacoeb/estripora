@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 24, 2024 at 05:03 AM
+-- Generation Time: Jan 30, 2025 at 12:22 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -24,20 +24,6 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `datail_sarana`
---
-
-CREATE TABLE `datail_sarana` (
-  `id_detail` char(25) NOT NULL,
-  `id_sarana` char(25) NOT NULL,
-  `id_fasilitas` char(25) NOT NULL,
-  `kelengkapan` varchar(200) NOT NULL,
-  `status` enum('Tersedia','Tidak Tersedia') NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `fasilitas`
 --
 
@@ -54,7 +40,10 @@ CREATE TABLE `fasilitas` (
 --
 
 INSERT INTO `fasilitas` (`id_fasilitas`, `id_sarana`, `nama_fasilitas`, `qty`, `kondisi`) VALUES
-('FS-001', 'MJ-002', 'Lampu', 4, 'Baik');
+('FS-001', 'MJ-002', 'Toilet', 3, 'Baik'),
+('FS-002', 'MJ-001', 'Lampu', 12, 'Baik'),
+('FS-003', 'TLJ-001', 'Meja Tenis', 3, 'Baik'),
+('FS-004', 'MJ-001', 'Kursi', 16, 'Baik');
 
 -- --------------------------------------------------------
 
@@ -69,6 +58,19 @@ CREATE TABLE `jam_operasional` (
   `jam_mulai` time NOT NULL,
   `jam_selesai` time NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `jam_operasional`
+--
+
+INSERT INTO `jam_operasional` (`id_jam`, `id_sarana`, `hari`, `jam_mulai`, `jam_selesai`) VALUES
+('JAM-001', 'MJ-001', 'Senin', '07:00:00', '17:00:00'),
+('JAM-002', 'MJ-001', 'Selasa', '09:00:00', '17:00:00'),
+('JAM-003', 'MJ-001', 'Rabu', '09:00:00', '17:00:00'),
+('JAM-004', 'MJ-002', 'Senin', '09:00:00', '17:00:00'),
+('JAM-005', 'TLJ-001', 'Senin', '09:00:00', '17:00:00'),
+('JAM-006', 'MJ-001', 'Kamis', '09:00:00', '17:00:00'),
+('JAM-007', 'TLJ-001', 'Selasa', '07:00:00', '10:00:00');
 
 -- --------------------------------------------------------
 
@@ -123,16 +125,32 @@ INSERT INTO `sarana` (`id_sarana`, `id_kategori`, `nama_sarana`, `gambar`, `harg
 --
 
 CREATE TABLE `transaksi` (
-  `id_transaksi` char(25) NOT NULL,
-  `id_sarana` char(25) NOT NULL,
+  `id_transaksi` int NOT NULL,
   `id_user` char(25) NOT NULL,
-  `id_jam` char(25) NOT NULL,
   `order_id` varchar(50) NOT NULL,
   `gross_amount` int NOT NULL,
+  `customer_name` varchar(255) NOT NULL,
+  `customer_email` varchar(255) NOT NULL,
   `tanggal` date NOT NULL,
-  `hitung` int NOT NULL,
-  `status` enum('Pending','Dibatalakan','Berhasil') NOT NULL
+  `sarana` varchar(255) NOT NULL,
+  `price` int NOT NULL,
+  `quantity` int NOT NULL,
+  `start_time` varchar(255) NOT NULL,
+  `end_time` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `status` enum('Pending','Dibatalakan','Berhasil') NOT NULL,
+  `pembatalan` varchar(200) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `transaksi`
+--
+
+INSERT INTO `transaksi` (`id_transaksi`, `id_user`, `order_id`, `gross_amount`, `customer_name`, `customer_email`, `tanggal`, `sarana`, `price`, `quantity`, `start_time`, `end_time`, `status`, `pembatalan`) VALUES
+(66, 'USR-002', 'order-1738202161758', 56000, 'user', 'user@user.com', '2025-02-03', 'Manunggal Jati', 28000, 2, '07:00 - 08:00', '08:00 - 09:00', 'Berhasil', NULL),
+(67, 'USR-002', 'order-1738203157016', 224000, 'user', 'user@user.com', '2025-02-04', 'Manunggal Jati', 28000, 8, '09:00 - 10:00', '16:00 - 17:00', 'Pending', NULL),
+(68, 'USR-002', 'order-1738203247762', 56000, 'user', 'user@user.com', '2025-02-03', 'Manunggal Jati', 28000, 2, '09:00 - 10:00', '10:00 - 11:00', 'Pending', NULL),
+(72, 'USR-002', 'order-1738206156456', 168000, 'user', 'user@user.com', '2025-02-03', 'Manunggal Jati', 28000, 6, '11:00 - 12:00', '16:00 - 17:00', 'Pending', NULL),
+(73, 'USR-002', 'order-1738237078196', 56000, 'user', 'user@user.com', '2025-01-30', 'Manunggal Jati', 28000, 2, '09:00 - 10:00', '10:00 - 11:00', 'Pending', NULL);
 
 -- --------------------------------------------------------
 
@@ -161,14 +179,6 @@ INSERT INTO `user` (`id_user`, `user`, `password`, `email`, `role`, `nik`, `no_t
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `datail_sarana`
---
-ALTER TABLE `datail_sarana`
-  ADD PRIMARY KEY (`id_detail`),
-  ADD KEY `id_sarana` (`id_sarana`),
-  ADD KEY `id_fasilitas` (`id_fasilitas`);
 
 --
 -- Indexes for table `fasilitas`
@@ -202,9 +212,7 @@ ALTER TABLE `sarana`
 --
 ALTER TABLE `transaksi`
   ADD PRIMARY KEY (`id_transaksi`),
-  ADD KEY `fk2_sarana` (`id_sarana`),
-  ADD KEY `id_user` (`id_user`),
-  ADD KEY `id_jam` (`id_jam`);
+  ADD KEY `id_user` (`id_user`);
 
 --
 -- Indexes for table `user`
@@ -215,15 +223,18 @@ ALTER TABLE `user`
   ADD UNIQUE KEY `nik` (`nik`);
 
 --
--- Constraints for dumped tables
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- Constraints for table `datail_sarana`
+-- AUTO_INCREMENT for table `transaksi`
 --
-ALTER TABLE `datail_sarana`
-  ADD CONSTRAINT `id_fasilitas` FOREIGN KEY (`id_fasilitas`) REFERENCES `fasilitas` (`id_fasilitas`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_sarana` FOREIGN KEY (`id_sarana`) REFERENCES `sarana` (`id_sarana`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `transaksi`
+  MODIFY `id_transaksi` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
+
+--
+-- Constraints for dumped tables
+--
 
 --
 -- Constraints for table `fasilitas`
@@ -247,8 +258,6 @@ ALTER TABLE `sarana`
 -- Constraints for table `transaksi`
 --
 ALTER TABLE `transaksi`
-  ADD CONSTRAINT `fk2_sarana` FOREIGN KEY (`id_sarana`) REFERENCES `sarana` (`id_sarana`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_jam` FOREIGN KEY (`id_jam`) REFERENCES `jam_operasional` (`id_jam`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `id_user` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
