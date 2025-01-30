@@ -188,6 +188,38 @@ router.get('check', async (req, res) => {
   }
 });
 
+router.get('/check-availability', async (req, res) => {
+  const { tanggal, sarana } = req.query;
+
+  if (!tanggal || !sarana) {
+    return res.status(400).json({ message: "Tanggal dan sarana harus disediakan." });
+  }
+
+  try {
+    // Query untuk mendapatkan waktu yang sudah dibooking
+    const query = `
+      SELECT start_time, end_time 
+      FROM transaksi 
+      WHERE tanggal = ? 
+      AND sarana = ? 
+      AND status IN ('Pending', 'Berhasil')
+    `;
+
+    const bookedTimes = await queryDB(query, [tanggal, sarana]);
+
+    // Format waktu yang sudah dibooking
+    const blockedTimes = bookedTimes.map(booking => ({
+      start_time: booking.start_time,
+      end_time: booking.end_time
+    }));
+
+    res.status(200).json({ blockedTimes });
+  } catch (error) {
+    console.error("Kesalahan saat memeriksa ketersediaan:", error);
+    res.status(500).json({ message: "Terjadi kesalahan saat memeriksa ketersediaan." });
+  }
+});
+
 
 
 module.exports = router;

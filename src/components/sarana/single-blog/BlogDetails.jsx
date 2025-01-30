@@ -64,6 +64,7 @@ const BookingSection = ({ jamOperasional, harga, kategori }) => {
   const [selectedTimes, setSelectedTimes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
   const [user, setUser] = useState({ id_user: "", user: "", email: "" });
+  const [blockedTimes, setBlockedTimes] = useState({}); // State untuk menyimpan waktu yang sudah dibooking
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -105,112 +106,122 @@ const BookingSection = ({ jamOperasional, harga, kategori }) => {
       setTotalPrice(0);
       return;
     }
-  
+
     let total = 0;
     selectedDates.forEach((date) => {
       const dateString = format(date, "yyyy-MM-dd");
       const selectedTimeForDate = selectedTimes[dateString] || [];
       total += harga * selectedTimeForDate.length;
     });
-  
+
     setTotalPrice(total);
   };
-  
 
-// Fungsi untuk mengecek apakah waktu sudah disewa
-const checkIfTimeBooked = async (date, time) => {
-  const dateString = format(date, "yyyy-MM-dd");
-
-  try {
-    // Fetch data dari backend
-    const response = await fetch(
-      `http://localhost:3001/api/payment/check?date=${dateString}&time=${time}`
-    );
-    const data = await response.json();
-
-    // Return status waktu
-    return data.isBooked;
-  } catch (error) {
-    console.error("Error checking booking:", error);
-    return false;
-  }
-};
-
-const checkIfDateFullyBooked = async (date) => {
-  const dateString = format(date, "yyyy-MM-dd");
-
-  try {
+  // Fungsi untuk memeriksa ketersediaan waktu
+  const checkAvailability = async (date, sarana) => {
+    try {
       const response = await fetch(
-          `http://localhost:3001/api/payment/check?date=${dateString}`
+        `http://localhost:3001/api/payment/check-availability?tanggal=${date}&sarana=${sarana}`
       );
       const data = await response.json();
+      return data.blockedTimes || [];
+    } catch (error) {
+      console.error("Error checking availability:", error);
+      return [];
+    }
+  };
 
-      // Anggap penuh jika tidak ada waktu yang tersedia
-      return data.availableTimes.length === 0;
-  } catch (error) {
-      console.error("Error checking full date booking:", error);
-      return false;
-  }
-};
-
-
-
-
-
-// Handle klik waktu
-const handleTimeClick = async (time, date) => {
-  const dateString = format(date, "yyyy-MM-dd");
-
-  const isBooked = await checkIfTimeBooked(date, time);
-  if (isBooked) {
-    alert(`Waktu ${time} pada tanggal ${dateString} sudah disewa!`);
-    return;
-  }
-
-  const timesForThisDate = selectedTimes[dateString] || [];
-  const updatedTimes = timesForThisDate.includes(time)
-    ? timesForThisDate.filter((t) => t !== time)
-    : [...timesForThisDate, time];
-
-  setSelectedTimes((prevSelectedTimes) => ({
-    ...prevSelectedTimes,
-    [dateString]: updatedTimes,
-  }));
-};
-
-// Handle klik tanggal (untuk blok tanggal 1 hari)
-const handleDateClick = async (date) => {
-  const dateString = format(date, "yyyy-MM-dd");
-
-  const isFullyBooked = await checkIfDateFullyBooked(date);
-  if (isFullyBooked) {
-    alert(`Tanggal ${dateString} sudah penuh disewa.`);
-    return;
-  }
-
-  if (selectedDates.find((d) => format(d, "yyyy-MM-dd") === dateString)) {
-    setSelectedDates((prevSelectedDates) =>
-      prevSelectedDates.filter((d) => format(d, "yyyy-MM-dd") !== dateString)
-    );
-  } else {
-    setSelectedDates((prevSelectedDates) => [...prevSelectedDates, date]);
-  }
-};
-
-// Fungsi untuk menentukan apakah tanggal diblok di kalender
-const isDateBlocked = async (date) => {
-  return await checkIfDateFullyBooked(date);
-};
-
-
-
-  const handleSelectAllTimes = (date, availableTimes) => {
+  // Handle klik waktu
+  const handleTimeClick = async (time, date) => {
     const dateString = format(date, "yyyy-MM-dd");
-    const allTimesSelected = selectedTimes[dateString]?.length === availableTimes.length;
+
+    // Memeriksa ketersediaan waktu
+    const blockedTimesForDate = await checkAvailability(dateString, kategori.nama_kategori);
+
+    // Memeriksa apakah waktu yang dipilih sudah dibooking
+    const isBooked = blockedTimesForDate.some(
+      (blocked) =>
+        time >= blocked.start_time && time <= blocked.end_time
+    );
+
+    if (isBooked) {
+      alert(`Waktu ${time} pada tanggal ${dateString} sudah dibooking!`);
+      return;
+    }
+
+    const timesForThisDate = selectedTimes[dateString] || [];
+    const updatedTimes = timesForThisDate.includes(time)
+      ? timesForThisDate.filter((t) => t !== time)
+      : [...timesForThisDate, time];
 
     setSelectedTimes((prevSelectedTimes) => ({
       ...prevSelectedTimes,
-      [dateString]: allTimesSelected ? [] : availableTimes,
+      [dateString]: updatedTimes,
+    }));
+  };
+
+  // Handle klik tanggal (untuk blok tanggal 1 hari)
+  const handleDateClick = async (date) => {
+    const dateString = format(date, "yyyy-MM-dd");
+
+    // Memeriksa ketersediaan waktu
+    const blockedTimesForDate = await checkAvailability(dateString, kategori.nama_kategori);
+
+    // Memeriksa apakah tanggal sudah penuh
+    const availableTimes = getAvailableTimesForDay(
+      ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][date.getDay()]
+    );
+
+    const isFullyBooked = availableTimes.every((time) =>
+      blockedTimesForDate.some(
+        (blocked) =>
+          time >= blocked.start_time && time <= blocked.end_time
+      )
+    );
+
+    if (isFullyBooked) {
+      alert(`Tanggal ${dateString} sudah penuh dibooking.`);
+      return;
+    }
+
+    if (selectedDates.find((d) => format(d, "yyyy-MM-dd") === dateString)) {
+      setSelectedDates((prevSelectedDates) =>
+        prevSelectedDates.filter((d) => format(d, "yyyy-MM-dd") !== dateString)
+      );
+    } else {
+      setSelectedDates((prevSelectedDates) => [...prevSelectedDates, date]);
+    }
+  };
+
+  // Fungsi untuk menentukan apakah tanggal diblok di kalender
+  const isDateBlocked = async (date) => {
+    const dateString = format(date, "yyyy-MM-dd");
+
+    // Memeriksa ketersediaan waktu
+    const blockedTimesForDate = await checkAvailability(dateString, kategori.nama_kategori);
+
+    // Memeriksa apakah tanggal sudah penuh
+    const availableTimes = getAvailableTimesForDay(
+      ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][date.getDay()]
+    );
+
+    const isFullyBooked = availableTimes.every((time) =>
+      blockedTimesForDate.some(
+        (blocked) =>
+          time >= blocked.start_time && time <= blocked.end_time
+      )
+    );
+
+    return isFullyBooked;
+  };
+
+  const handleSelectAllTimes = (date, availableTimes) => {
+    const dateString = format(date, "yyyy-MM-dd");
+
+    // Jika memilih "1 hari", blokir seluruh hari
+    setSelectedTimes((prevSelectedTimes) => ({
+      ...prevSelectedTimes,
+      [dateString]: availableTimes,
     }));
   };
 
@@ -219,7 +230,7 @@ const isDateBlocked = async (date) => {
       alert("Silakan pilih tanggal dan waktu bermain terlebih dahulu.");
       return;
     }
-  
+
     const bookingData = {
       transaction_details: {
         order_id: `order-${new Date().getTime()}`,
@@ -233,10 +244,10 @@ const isDateBlocked = async (date) => {
       item_details: selectedDates.map((date) => {
         const dateString = format(date, "yyyy-MM-dd");
         const times = selectedTimes[dateString] || [];
-  
+
         const jamMulai = times.length > 0 ? times[0] : "N/A";
         const jamSelesai = times.length > 0 ? times[times.length - 1] : "N/A";
-  
+
         return {
           tanggal: `${dateString}`,
           name: kategori.nama_kategori,
@@ -247,9 +258,8 @@ const isDateBlocked = async (date) => {
         };
       }),
     };
-  
+
     try {
-      // Step 1: Request payment token from backend
       const response = await fetch("http://localhost:3001/api/payment/bayar", {
         method: "POST",
         headers: {
@@ -257,19 +267,17 @@ const isDateBlocked = async (date) => {
         },
         body: JSON.stringify(bookingData),
       });
-  
+
       const data = await response.json();
       if (!response.ok || !data.token) {
         throw new Error("Gagal memproses transaksi.");
       }
-  
-      // Step 2: Process payment via Midtrans Snap
+
       snap.pay(data.token, {
         onSuccess: async (result) => {
           alert("Pembayaran berhasil!");
           console.log(result);
-  
-          // Step 3: Send confirmed booking data to backend
+
           const saveResponse = await fetch("http://localhost:3001/api/payment/confirm", {
             method: "POST",
             headers: {
@@ -280,11 +288,11 @@ const isDateBlocked = async (date) => {
               transaction_id: result.transaction_id,
             }),
           });
-  
+
           if (!saveResponse.ok) {
             throw new Error("Gagal menyimpan data booking.");
           }
-  
+
           alert("Data booking berhasil disimpan.");
         },
         onPending: function (result) {
@@ -301,37 +309,32 @@ const isDateBlocked = async (date) => {
       alert("Terjadi kesalahan. Silakan coba lagi.");
     }
   };
-  
-  
 
   return (
     <div className="booking-section" style={{ marginTop: "40px" }}>
       <h4>Pilih Tanggal Bermain</h4>
       <DatePicker
-  selected={null}
-  onChange={handleDateClick}
-  minDate={new Date()} // Hanya tanggal mulai dari hari ini
-  dateFormat="yyyy/MM/dd"
-  inline
-  highlightDates={selectedDates} // Tanggal yang dipilih akan disorot
-  filterDate={(date) => {
-    const dayName = [
-      "Minggu",
-      "Senin",
-      "Selasa",
-      "Rabu",
-      "Kamis",
-      "Jumat",
-      "Sabtu",
-    ][date.getDay()]; // Mendapatkan nama hari dari tanggal
-    
-    // Periksa apakah tanggal memiliki jam operasional yang tersedia
-    const isOperationalDay = jamOperasional.some((jam) => jam.hari === dayName);
-    
-    return isOperationalDay; // Tampilkan hanya tanggal yang valid
-  }}
-/>
-
+        selected={null}
+        onChange={handleDateClick}
+        minDate={new Date()}
+        dateFormat="yyyy/MM/dd"
+        inline
+        highlightDates={selectedDates}
+        filterDate={async (date) => {
+          const dayName = [
+            "Minggu",
+            "Senin",
+            "Selasa",
+            "Rabu",
+            "Kamis",
+            "Jumat",
+            "Sabtu",
+          ][date.getDay()];
+          const isOperationalDay = jamOperasional.some((jam) => jam.hari === dayName);
+          const isBlocked = await isDateBlocked(date);
+          return isOperationalDay && !isBlocked;
+        }}
+      />
 
       {selectedDates.map((date, index) => {
         const dayName = [
@@ -408,7 +411,6 @@ const isDateBlocked = async (date) => {
   );
 };
 
-
 // Main Component
 function BlogDetails({ id, nama, kategori, gambar, harga, jam_operasional, fasilitas }) {
   return (
@@ -474,7 +476,5 @@ function BlogDetails({ id, nama, kategori, gambar, harga, jam_operasional, fasil
     </>
   );
 }
-
-
 
 export default BlogDetails;
