@@ -354,16 +354,6 @@ const BookingSection = ({ jamOperasional, harga, kategori }) => {
         return (
           <div key={index}>
             <h5>Jam Bermain {date.toLocaleDateString("id-ID")}</h5>
-            <div style={{ marginBottom: "5px", display: "flex", alignItems: "center", fontSize: "14px" }}>
-              <input
-                type="checkbox"
-                id={`select-all-${dateString}`}
-                checked={allTimesSelected}
-                onChange={() => handleSelectAllTimes(date, availableTimesForDay)}
-                style={{ marginRight: "6px", width: "20px", height: "20px" }}
-              />
-              <label htmlFor={`select-all-${dateString}`}>1 hari</label>
-            </div>
 
             {availableTimesForDay.map((time, idx) => (
               <button

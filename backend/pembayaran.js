@@ -1,4 +1,3 @@
-
 const express = require('express');
 const mysql = require('mysql');
 
@@ -30,6 +29,7 @@ router.get('/pembayaran', async (req, res) => {
   try {
     const query = `
       SELECT 
+        id_transaksi,
         order_id,
         gross_amount,
         customer_name,
@@ -41,7 +41,7 @@ router.get('/pembayaran', async (req, res) => {
         GROUP_CONCAT(DISTINCT end_time ORDER BY end_time ASC) AS end_time,
         status
       FROM transaksi
-      GROUP BY order_id, gross_amount,customer_name, customer_email, sarana, status
+      GROUP BY id_transaksi,order_id, gross_amount,customer_name, customer_email, sarana, status
     `;
     
     const data = await queryDB(query);
@@ -66,7 +66,7 @@ router.get('/pembayaran', async (req, res) => {
 router.get('/pembayaran/:id', async (req, res) => {
   try {
     const { id } = req.params; // Extract the id from the URL parameter
-    const query = `SELECT order_id,status FROM transaksi WHERE order_id = ?`; // Use the id to query the database
+    const query = 'SELECT id_transaksi,status FROM transaksi WHERE id_transaksi = ?'; // Use the id to query the database
     const data = await queryDB(query, [id]); // Query the database using the id
 
     if (data.length === 0) {
@@ -91,7 +91,7 @@ router.put('/pembayaran/:id', async (req, res) => {
     const query = `
       UPDATE transaksi
       SET status = ?
-      WHERE order_id = ?
+      WHERE id_transaksi = ?
     `;
 
     const result = await queryDB(query, [status, id]);
@@ -110,4 +110,3 @@ router.put('/pembayaran/:id', async (req, res) => {
 
 // Export the router
 module.exports = router;
-
